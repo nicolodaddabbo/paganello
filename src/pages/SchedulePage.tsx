@@ -8,7 +8,6 @@ import ErrorMessage from '../components/ErrorMessage';
 import FilterBar from '../components/schedule/FilterBar';
 import FavoritesBar from '../components/schedule/FavoritesBar';
 import MatchCard from '../components/schedule/MatchCard';
-import HelperTooltip from '../components/schedule/HelperTooltip';
 import styles from '../styles/Schedule.module.css';
 
 export default function SchedulePage() {
@@ -20,7 +19,6 @@ export default function SchedulePage() {
   const [favoriteTeams, setFavoriteTeams] = useLocalStorage<string[]>('paganello-favorites', []);
   const [showFavoritesOnly, setShowFavoritesOnly] = useLocalStorageBoolean('paganello-show-favorites', false);
   const [showFilters, setShowFilters] = useState(false);
-  const [showHelperTooltip, setShowHelperTooltip] = useLocalStorageBoolean('paganello-helper-dismissed', false);
 
   const [availableFields, setAvailableFields] = useState<string[]>(['all']);
   const [availableTimes, setAvailableTimes] = useState<string[]>(['all']);
@@ -66,10 +64,6 @@ export default function SchedulePage() {
     setFavoriteTeams(favoriteTeams.filter(t => t !== team));
   }, [favoriteTeams, setFavoriteTeams]);
 
-  const dismissHelperTooltip = useCallback(() => {
-    setShowHelperTooltip(true);
-  }, [setShowHelperTooltip]);
-
   const filteredMatches = useMemo(
     () => filterMatches(matches, filters, favoriteTeams, showFavoritesOnly),
     [matches, filters, favoriteTeams, showFavoritesOnly]
@@ -80,13 +74,6 @@ export default function SchedulePage() {
 
   return (
     <div className={styles.schedulePage}>
-      {!showHelperTooltip && <HelperTooltip onDismiss={dismissHelperTooltip} />}
-
-      <div className={styles.header}>
-        <h1>Tournament Schedule</h1>
-        <p>{matches.length} total matches</p>
-      </div>
-
       <FilterBar
         filters={filters}
         updateFilter={updateFilter}

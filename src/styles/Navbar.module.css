@@ -16,6 +16,9 @@
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--primary-color);
@@ -24,6 +27,11 @@
 
 .logo:hover {
   color: var(--primary-dark);
+}
+
+.logoImage {
+  height: 40px;
+  width: auto;
 }
 
 .hamburger {
@@ -69,6 +77,19 @@
     display: flex;
   }
 
+  .logo {
+    font-size: 1.125rem;
+    gap: var(--spacing-sm);
+  }
+
+  .logoImage {
+    height: 32px;
+  }
+
+  .logo span {
+    display: inline;
+  }
+
   .navLinks {
     position: fixed;
     top: 60px;
@@ -85,5 +106,15 @@
 
   .navLinks.open {
     transform: translateX(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .logo span {
+    font-size: 1rem;
+  }
+
+  .logoImage {
+    height: 28px;
   }
 }

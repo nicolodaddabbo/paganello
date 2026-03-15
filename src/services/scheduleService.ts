@@ -1,13 +1,17 @@
 import type { RawScheduleData, Match } from '../types/match';
+import { fetchWithCache } from '../utils/cache';
 
 const SCHEDULE_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AY5xjrTW6rX1zzFe4P5-JajuVPCw9Cm_S_aTN53pCY5CDMiIrTvwa5rT4BizToJ2EYfP-Bgdtcd8qU8njoLb09y939BFJurflo5LybTdLHGpXOI_kuM_ZxoNh08eZcRl0iCItcUKuM91-r2ea45NROd4yBYSC-wSnOYQY_IMCQ8zXzYyn3f1LXtYOj_6-UzdzFrWLDgtd5p2BffsVKYcM0WN-b7gwokYJiLdFYV_SPiTmobUvkHSkSOxmR6f9riErWYeJNF7pm8ZEy-_Bn-sICbeJ0NOvuzxFqsKBlxDtwTJ7UY7reKb6Hnwdq7I63nBJA&lib=MEoXfsZS0V3rHY2Z_S8VN8jTDv19RCRyF';
 
+// Cache for 3 minutes (scores update frequently during tournament)
+const CACHE_DURATION = 3 * 60 * 1000;
+
 export async function fetchSchedule(): Promise<Match[]> {
-  const response = await fetch(SCHEDULE_URL);
-  if (!response.ok) {
-    throw new Error('Failed to fetch schedule data');
-  }
-  const data: RawScheduleData = await response.json();
+  const data = await fetchWithCache<RawScheduleData>(
+    SCHEDULE_URL,
+    'paganello-schedule',
+    CACHE_DURATION
+  );
   return transformScheduleData(data);
 }
 

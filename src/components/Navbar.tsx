@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
+import paganelloLogo from '../assets/Paganello_Logo_White.svg';
 import styles from '../styles/Navbar.module.css';
 
 export default function Navbar() {
@@ -17,7 +18,8 @@ export default function Navbar() {
           rel="noopener noreferrer"
           className={styles.logo}
         >
-          Paganello 2026
+          <img src={paganelloLogo} alt="Paganello" className={styles.logoImage} />
+          <span>Paganello 2026</span>
         </a>
 
         <button
