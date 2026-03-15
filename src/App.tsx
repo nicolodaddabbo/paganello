@@ -6,7 +6,7 @@ import SOTGPage from './pages/SOTGPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/paganello">
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<SchedulePage />} />
