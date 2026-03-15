@@ -33,3 +33,4 @@ yarn-error.log*
 .vercel
 
 secrets.json
+/src/components/schedule/HelperTooltip.tsx
