@@ -1,27 +1,51 @@
+/* Paganello 2026 — Blue brand + Conspiracy yellow/red accents */
 :root {
-  --primary-color: #009fe3;
-  --primary-dark: #0088c7;
-  --accent-color: #ffd700;
+  --primary: #009fe3;
+  --primary-dark: #0080b8;
+  --primary-glow: rgba(0, 159, 227, 0.1);
+
+  --accent: #FFD700;
   --accent-dark: #e6c200;
-  --text-primary: #1a1a1a;
-  --text-secondary: #666;
-  --text-light: #999;
-  --border-color: #e0e0e0;
-  --bg-color: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --bg-hover: #f9f9f9;
-  --success-color: #22c55e;
-  --error-color: #ef4444;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --radius: 8px;
-  --radius-lg: 12px;
+  --conspiracy-red: #E30613;
+
+  --bg: #faf8f4;
+  --bg-card: #ffffff;
+  --bg-elevated: #f0f7fc;
+  --bg-hover: #f5f0e8;
+
+  --text: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #999;
+
+  --border: #e8e4dc;
+  --border-light: #f0ece4;
+
+  --success: #22c55e;
+  --error: #E30613;
+  --live: #E30613;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Division colors */
+  --div-rm: #E30613;
+  --div-lm: #d97706;
+  --div-o: #009fe3;
+  --div-w: #db2777;
+  --div-u20: #059669;
+  --div-u15: #7c3aed;
+
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
+
+  --touch-min: 48px;
 }
 
 * {
@@ -30,29 +54,37 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: var(--text-primary);
-  background-color: var(--bg-secondary);
-  line-height: 1.6;
+  color: var(--text);
+  background-color: var(--bg);
+  line-height: 1.5;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 .app-layout {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
 }
 
 .main-content {
   flex: 1;
-  max-width: 1200px;
+  max-width: 700px;
   width: 100%;
   margin: 0 auto;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
 }
 
 button {
@@ -60,42 +92,50 @@ button {
   cursor: pointer;
   border: none;
   background: none;
-  transition: all 0.2s ease;
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 a {
-  color: var(--primary-color);
+  color: var(--primary);
   text-decoration: none;
-  transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-a:hover {
-  color: var(--primary-dark);
-}
-
-input,
-select {
+input, select {
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  color: var(--text);
+  background-color: var(--bg-card);
   padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: border-color 0.2s ease;
+  min-height: var(--touch-min);
 }
 
-input:focus,
-select:focus {
+input:focus, select:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 159, 227, 0.15);
 }
 
-@media (max-width: 768px) {
-  .main-content {
-    padding: var(--spacing-md);
-  }
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
+
+.skeleton {
+  background: var(--border);
+  border-radius: var(--radius);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }

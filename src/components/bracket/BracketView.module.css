@@ -1,0 +1,128 @@
+.bracket {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--spacing-sm);
+}
+
+.bracketGrid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 1fr);
+  gap: var(--spacing-md);
+  min-width: min-content;
+}
+
+.round {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.roundTitle {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  padding: 6px 12px;
+  background: var(--primary-glow);
+  border-radius: var(--radius);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.placementGroup {
+  margin-bottom: var(--spacing-sm);
+}
+
+.placementLabel {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  margin-bottom: 4px;
+}
+
+.matchBox {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 6px;
+  box-shadow: var(--shadow-sm);
+}
+
+.matchRow {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.matchRow + .matchRow {
+  border-top: 1px solid var(--border-light);
+}
+
+.teamName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.teamName.winner {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.teamName.placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 20px;
+  text-align: right;
+}
+
+.score.winScore {
+  color: var(--text);
+  font-weight: 800;
+}
+
+.vs {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2px 0;
+}
+
+.matchMeta {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 10px 5px;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+}
+
+.emptyRound {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: var(--spacing-lg);
+}
+
+@media (max-width: 540px) {
+  .bracketGrid {
+    grid-auto-columns: minmax(200px, 260px);
+  }
+}

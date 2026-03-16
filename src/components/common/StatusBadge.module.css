@@ -1,0 +1,29 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-full);
+}
+
+.live {
+  color: var(--live);
+  background: color-mix(in srgb, var(--live) 15%, transparent);
+}
+
+.completed {
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--live);
+  animation: live-pulse 1.5s ease-in-out infinite;
+}

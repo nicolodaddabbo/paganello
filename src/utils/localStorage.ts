@@ -1,47 +1,31 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
-export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T) => void] {
+type SetValue<T> = T | ((prev: T) => T);
+
+export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: SetValue<T>) => void] {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error(`Error loading ${key} from localStorage:`, error);
-      return initialValue;
-    }
-  });
-
-  const setValue = (value: T) => {
-    try {
-      setStoredValue(value);
-      window.localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.error(`Error saving ${key} to localStorage:`, error);
-    }
-  };
-
-  return [storedValue, setValue];
-}
-
-export function useLocalStorageBoolean(key: string, initialValue: boolean): [boolean, (value: boolean) => void] {
-  const [storedValue, setStoredValue] = useState<boolean>(() => {
-    try {
-      const item = window.localStorage.getItem(key);
       return item !== null ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error(`Error loading ${key} from localStorage:`, error);
+    } catch {
       return initialValue;
     }
   });
 
-  const setValue = (value: boolean) => {
+  // Keep a ref to the current value so functional updaters work in stable callbacks
+  const valueRef = useRef(storedValue);
+  valueRef.current = storedValue;
+
+  const setValue = useCallback((value: SetValue<T>) => {
+    const newValue = typeof value === 'function'
+      ? (value as (prev: T) => T)(valueRef.current)
+      : value;
+    valueRef.current = newValue;
+    setStoredValue(newValue);
     try {
-      setStoredValue(value);
-      window.localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.error(`Error saving ${key} to localStorage:`, error);
-    }
-  };
+      window.localStorage.setItem(key, JSON.stringify(newValue));
+    } catch {}
+  }, [key]);
 
   return [storedValue, setValue];
 }

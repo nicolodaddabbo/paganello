@@ -1,16 +1,17 @@
 import type { RawPoolData, PoolStandings, DivisionKey } from '../types/pool';
 import { fetchWithCache } from '../utils/cache';
 
-const POOLS_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AY5xjrQdVQ0emQ4m2f7AU6s3fSWWZLoEPapOkuAPFkDA6flCwvAaUxQb_aSlAzwViPTK3jiY0irQqIzM78B-DVt50s5Mh0FUt66q1UxbX5t8hzrpU3S7X9ByUHlp_g0fwwI3bKoe_nlxxUfBNcGYOUgML2b6SGYq-EPCVNPyd96EPZQKJ2vFHkFuP7LKDqrU4FxtHMUDy7dUQkMQR9oYeMF8VVKOTjX-GThPDcm3eLV5u8O2dxIQ8XXJ2N4fvyo3SQEML5tbOEq1zOf9iv_OcPb_fZI0BiQvqxBf5aH6AkFhS-RlLFqC5zk&lib=MEoXfsZS0V3rHY2Z_S8VN8jTDv19RCRyF';
+const STATIC_URL = import.meta.env.BASE_URL + 'data/pools.json';
+const FALLBACK_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AY5xjrQdVQ0emQ4m2f7AU6s3fSWWZLoEPapOkuAPFkDA6flCwvAaUxQb_aSlAzwViPTK3jiY0irQqIzM78B-DVt50s5Mh0FUt66q1UxbX5t8hzrpU3S7X9ByUHlp_g0fwwI3bKoe_nlxxUfBNcGYOUgML2b6SGYq-EPCVNPyd96EPZQKJ2vFHkFuP7LKDqrU4FxtHMUDy7dUQkMQR9oYeMF8VVKOTjX-GThPDcm3eLV5u8O2dxIQ8XXJ2N4fvyo3SQEML5tbOEq1zOf9iv_OcPb_fZI0BiQvqxBf5aH6AkFhS-RlLFqC5zk&lib=MEoXfsZS0V3rHY2Z_S8VN8jTDv19RCRyF';
 
-// Cache for 3 minutes (pools update after each match)
 const CACHE_DURATION = 3 * 60 * 1000;
 
 export async function fetchPools(): Promise<PoolStandings[]> {
   const data = await fetchWithCache<RawPoolData>(
-    POOLS_URL,
+    STATIC_URL,
     'paganello-pools',
-    CACHE_DURATION
+    CACHE_DURATION,
+    FALLBACK_URL
   );
   return transformPoolsData(data);
 }

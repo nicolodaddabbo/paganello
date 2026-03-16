@@ -1,0 +1,197 @@
+.row {
+  display: grid;
+  grid-template-columns: 4px 1fr auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px 12px 0;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-light);
+  min-height: 52px;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+
+.row:first-child {
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
+
+.row:last-child {
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+  border-bottom: none;
+}
+
+.row:active {
+  background: var(--bg-hover);
+}
+
+/* Division color stripe on left */
+.divStripe {
+  width: 4px;
+  align-self: stretch;
+  background: var(--div-color);
+  border-radius: 2px;
+}
+
+.row.live {
+  background: #fff5f5;
+}
+
+.row.mine {
+  background: #f0f8ff;
+}
+
+.row.arena {
+  background: var(--bg-elevated);
+}
+
+/* With time column */
+.row:has(.timeCol) {
+  grid-template-columns: 4px 48px 1fr auto 1fr auto;
+}
+
+.timeCol {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.liveTag {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--live);
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.06em;
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+.team1 {
+  text-align: right;
+  overflow: hidden;
+}
+
+.team2 {
+  text-align: left;
+  overflow: hidden;
+}
+
+.name {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.name.winner {
+  font-weight: 800;
+}
+
+.name.myName {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.name.placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.scoreCol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 52px;
+  font-variant-numeric: tabular-nums;
+}
+
+.winScore {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.loseScore {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.dash {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.arrow {
+  font-size: 0.6rem;
+  color: var(--primary);
+}
+
+.vs {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.infoCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  min-width: 70px;
+  max-width: 100px;
+}
+
+.matchType {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.matchType.knockout {
+  color: var(--conspiracy-red);
+  font-weight: 700;
+}
+
+.field {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+.field.arenaField {
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
+@media (max-width: 400px) {
+  .row {
+    grid-template-columns: 4px 1fr auto 1fr;
+  }
+
+  .row:has(.timeCol) {
+    grid-template-columns: 4px 40px 1fr auto 1fr;
+  }
+
+  .infoCol {
+    display: none;
+  }
+}

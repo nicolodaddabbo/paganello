@@ -1,0 +1,284 @@
+.page {
+  padding-top: var(--spacing-sm);
+}
+
+.back {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: var(--spacing-md);
+  text-decoration: none;
+  min-height: var(--touch-min);
+  line-height: var(--touch-min);
+}
+
+.notFound {
+  text-align: center;
+  color: var(--text-muted);
+  padding: var(--spacing-xl);
+}
+
+.backLink {
+  display: block;
+  text-align: center;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Main card */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--spacing-md);
+}
+
+.matchType {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Matchup */
+.matchup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md) 0;
+}
+
+.teamCol {
+  flex: 1;
+  text-align: center;
+}
+
+.teamName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.teamName.winner {
+  font-weight: 900;
+}
+
+.teamName.myTeam {
+  color: var(--primary);
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 80px;
+}
+
+.scores {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bigScore {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.dimScore {
+  font-size: 2.5rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.scoreDash {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+}
+
+.vsLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--bg-elevated);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.liveBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--live);
+  letter-spacing: 0.06em;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--live);
+  animation: live-pulse 1.5s ease-in-out infinite;
+}
+
+.finalBadge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+/* Details */
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-light);
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detailLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.detailValue {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mapLink {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.shareBtn {
+  width: 100%;
+  margin-top: var(--spacing-md);
+  padding: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-glow);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  min-height: var(--touch-min);
+}
+
+.shareBtn:active {
+  opacity: 0.8;
+}
+
+/* Sections */
+.section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.sectionTitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.miniList {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.miniRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  text-decoration: none;
+  color: var(--text);
+  min-height: 44px;
+}
+
+.miniRow:last-child {
+  border-bottom: none;
+}
+
+.miniRow:active {
+  background: var(--bg-hover);
+}
+
+.miniTime {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+}
+
+.miniTeams {
+  flex: 1;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.miniBold {
+  font-weight: 700;
+}
+
+.miniScore {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.miniVs {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.miniField {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}

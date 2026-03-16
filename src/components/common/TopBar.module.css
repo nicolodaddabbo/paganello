@@ -1,0 +1,31 @@
+.topBar {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  background: var(--primary);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logoImg {
+  height: 22px;
+  width: auto;
+  /* SVG is blue (#009fe3), make it white on the blue header */
+  filter: brightness(100);
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
