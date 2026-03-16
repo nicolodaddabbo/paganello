@@ -5,7 +5,7 @@ import { fetchSchedule, getUniqueTeams } from '../services/scheduleService';
 import styles from './MorePage.module.css';
 
 export default function MorePage() {
-  const { myTeam, clearMyTeam, followedTeams, toggleFollow, allFollowed } = useMyTeam();
+  const { myTeam, clearMyTeam, toggleFollow, allFollowed } = useMyTeam();
   const navigate = useNavigate();
   const [teams, setTeams] = useState<string[]>([]);
   const [showTeamPicker, setShowTeamPicker] = useState(false);

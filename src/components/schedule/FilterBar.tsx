@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import type { Filters, DayFilter, DivisionFilter, StatusFilter } from '../../types/match';
+import type { Filters, DivisionFilter, StatusFilter } from '../../types/match';
 import { getActiveFilterCount } from '../../utils/filters';
 import styles from './FilterBar.module.css';
 
@@ -10,13 +9,13 @@ interface Props {
   showFilters: boolean;
   setShowFilters: (show: boolean) => void;
   availableFields: string[];
-  availableTimes: string[];
+  availableTimes?: string[];
 }
 
 export default function FilterBar({
   filters, updateFilter, clearFilters,
   showFilters, setShowFilters,
-  availableFields, availableTimes,
+  availableFields,
 }: Props) {
   const activeCount = getActiveFilterCount(filters);
 
