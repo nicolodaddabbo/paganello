@@ -10,7 +10,7 @@ import styles from './MatchPage.module.css';
 
 export default function MatchPage() {
   const { matchId } = useParams<{ matchId: string }>();
-  const { myTeam } = useMyTeam();
+  const { myTeam, isFollowed, toggleFollow, setMyTeam } = useMyTeam();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -81,9 +81,15 @@ export default function MatchPage() {
         {/* Score / VS */}
         <div className={styles.matchup}>
           <div className={styles.teamCol}>
-            <span className={`${styles.teamName} ${t1Wins ? styles.winner : ''} ${myTeam && match.team1.toLowerCase() === myTeam.toLowerCase() ? styles.myTeam : ''}`}>
+            <span className={`${styles.teamName} ${t1Wins ? styles.winner : ''} ${isFollowed(match.team1) ? styles.myTeam : ''}`}>
               {match.team1}
             </span>
+            <button
+              className={`${styles.followBtn} ${isFollowed(match.team1) ? styles.following : ''}`}
+              onClick={() => !myTeam ? setMyTeam(match.team1) : toggleFollow(match.team1)}
+            >
+              {isFollowed(match.team1) ? '★ Following' : '☆ Follow'}
+            </button>
           </div>
 
           <div className={styles.center}>
@@ -101,9 +107,15 @@ export default function MatchPage() {
           </div>
 
           <div className={styles.teamCol}>
-            <span className={`${styles.teamName} ${t2Wins ? styles.winner : ''} ${myTeam && match.team2.toLowerCase() === myTeam.toLowerCase() ? styles.myTeam : ''}`}>
+            <span className={`${styles.teamName} ${t2Wins ? styles.winner : ''} ${isFollowed(match.team2) ? styles.myTeam : ''}`}>
               {match.team2}
             </span>
+            <button
+              className={`${styles.followBtn} ${isFollowed(match.team2) ? styles.following : ''}`}
+              onClick={() => !myTeam ? setMyTeam(match.team2) : toggleFollow(match.team2)}
+            >
+              {isFollowed(match.team2) ? '★ Following' : '☆ Follow'}
+            </button>
           </div>
         </div>
 
