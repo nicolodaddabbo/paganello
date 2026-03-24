@@ -148,6 +148,7 @@ export default function MatchPage() {
                   )}
                   <span className={m.hasScore && m.score2 > m.score1 ? styles.miniBold : ''}>{m.team2}</span>
                 </span>
+                <span className={styles.miniField}>{m.field}</span>
               </Link>
             ))}
           </div>
