@@ -6,7 +6,6 @@ import { getNextMatch, getTeamMatches, getTodayString, getDayLabel, formatTime, 
 import { useLocalStorage } from '../utils/localStorage';
 import { useMyTeam } from '../hooks/useMyTeam';
 import { useVisibilityRefresh } from '../hooks/useVisibilityRefresh';
-import { getCacheTimestamp } from '../utils/cache';
 import NextGameHero from '../components/home/NextGameHero';
 import TeamDaySchedule from '../components/home/TeamDaySchedule';
 import TeamPrompt from '../components/home/TeamPrompt';
@@ -36,7 +35,6 @@ export default function HomePage() {
     fetchSchedule()
       .then(data => {
         setMatches(data);
-        setLastUpdated(getCacheTimestamp('paganello-schedule'));
       })
       .catch(() => { })
       .finally(() => setLoading(false));

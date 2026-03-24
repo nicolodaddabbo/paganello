@@ -9,18 +9,32 @@ const TOURNAMENT_DATES: Record<string, string> = {
 
 export const DAYS = ['saturday', 'sunday', 'monday'] as const;
 
-const GAME_DURATION_MINUTES = 90;
+const FALLBACK_GAME_DURATION_MINUTES = 45;
 
 export function getMatchDate(match: Match): Date {
   const dateStr = TOURNAMENT_DATES[match.day];
-  if (!dateStr) return new Date();
+  if (!dateStr) return new Date(0);
   const timeMatch = match.time.match(/^(\d{1,2}):(\d{2})/);
-  if (!timeMatch) return new Date();
+  if (!timeMatch) return new Date(0);
   const hours = parseInt(timeMatch[1], 10);
   const minutes = parseInt(timeMatch[2], 10);
   const date = new Date(`${dateStr}T00:00:00`);
   date.setHours(hours, minutes, 0, 0);
   return date;
+}
+
+function getMatchEndDate(match: Match): Date {
+  const dateStr = TOURNAMENT_DATES[match.day];
+  if (!dateStr) return new Date(0);
+  // Extract end time from slot like "11:00 - 11-11:45" → last HH:MM
+  const endMatch = match.time.match(/(\d{1,2}):(\d{2})\s*$/);
+  if (endMatch) {
+    const date = new Date(`${dateStr}T00:00:00`);
+    date.setHours(parseInt(endMatch[1], 10), parseInt(endMatch[2], 10), 0, 0);
+    return date;
+  }
+  const start = getMatchDate(match);
+  return new Date(start.getTime() + FALLBACK_GAME_DURATION_MINUTES * 60 * 1000);
 }
 
 export type MatchStatus = 'upcoming' | 'live' | 'completed';
@@ -30,7 +44,7 @@ export function getMatchStatus(match: Match): MatchStatus {
 
   const now = new Date();
   const start = getMatchDate(match);
-  const end = new Date(start.getTime() + GAME_DURATION_MINUTES * 60 * 1000);
+  const end = getMatchEndDate(match);
 
   if (now >= start && now <= end) return 'live';
   if (now > end) return 'completed';

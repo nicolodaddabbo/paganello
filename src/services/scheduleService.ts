@@ -26,7 +26,9 @@ function transformScheduleData(data: RawScheduleData): Match[] {
     if (!daySchedule) return;
 
     Object.entries(daySchedule).forEach(([time, matchList]) => {
+      if (!/^\d{1,2}:\d{2}/.test(time)) return;
       matchList.forEach(rawMatch => {
+        if (!rawMatch.team1 || !rawMatch.team2) return;
         matches.push({
           id: `${day}-${id++}`,
           day,

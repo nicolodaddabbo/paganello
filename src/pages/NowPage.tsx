@@ -11,7 +11,7 @@ export default function NowPage() {
 
   useEffect(() => {
     const load = () => {
-      fetchSchedule().then(setMatches).catch(() => {}).finally(() => setLoading(false));
+      fetchSchedule().then(setMatches).catch(() => { }).finally(() => setLoading(false));
     };
     load();
     const interval = setInterval(load, 60000);
