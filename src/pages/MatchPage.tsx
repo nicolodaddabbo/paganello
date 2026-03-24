@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import type { Match } from '../types/match';
 import { fetchSchedule } from '../services/scheduleService';
 import { getMatchStatus, getDayLabel, formatTime } from '../utils/time';
-import { shareMatch } from '../utils/share';
 import { useMyTeam } from '../hooks/useMyTeam';
 import DivisionBadge from '../components/common/DivisionBadge';
 import styles from './MatchPage.module.css';
