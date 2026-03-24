@@ -83,10 +83,10 @@
 
 .dayTab {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
+  justify-content: center;
   padding: 8px 14px;
+  font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
   color: var(--text-secondary);
@@ -94,7 +94,6 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   min-height: var(--touch-min);
-  min-width: 72px;
   flex-shrink: 0;
 }
 
@@ -104,25 +103,13 @@
   background: var(--primary-glow);
 }
 
-.dayLabel {
-  font-size: 0.8rem;
-}
-
-.dayCount {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-}
-
-.dayTabActive .dayCount {
-  color: var(--primary);
-}
-
 /* Toggle row */
 .toggleRow {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: var(--spacing-md);
+  min-width: 0;
 }
 
 .chip {

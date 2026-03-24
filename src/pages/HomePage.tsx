@@ -95,12 +95,6 @@ export default function HomePage() {
     [baseFiltered, selectedDay]
   );
 
-  const dayCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: baseFiltered.length };
-    DAYS.forEach(d => { counts[d] = baseFiltered.filter(m => m.day === d).length; });
-    return counts;
-  }, [baseFiltered]);
-
   // Group matches by time slot
   const groupedMatches = useMemo(() => {
     const groups: { time: string; matches: Match[] }[] = [];
@@ -192,16 +186,14 @@ export default function HomePage() {
               className={`${styles.dayTab} ${d === selectedDay ? styles.dayTabActive : ''}`}
               onClick={() => setSelectedDay(d)}
             >
-              <span className={styles.dayLabel}>{getDayLabel(d)}</span>
-              <span className={styles.dayCount}>{dayCounts[d] || 0}</span>
+              {getDayLabel(d)}
             </button>
           ))}
           <button
             className={`${styles.dayTab} ${selectedDay === 'all' ? styles.dayTabActive : ''}`}
             onClick={() => setSelectedDay('all')}
           >
-            <span className={styles.dayLabel}>All</span>
-            <span className={styles.dayCount}>{dayCounts.all || 0}</span>
+            All
           </button>
         </div>
 
