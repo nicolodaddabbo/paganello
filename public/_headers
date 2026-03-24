@@ -1,5 +1,0 @@
-/assets/*.js
-  Content-Type: application/javascript
-
-/registerSW.js
-  Content-Type: application/javascript

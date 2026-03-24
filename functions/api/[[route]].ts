@@ -5,9 +5,30 @@ const URLS: Record<string, string> = {
     "https://script.googleusercontent.com/macros/echo?user_content_key=AY5xjrQdVQ0emQ4m2f7AU6s3fSWWZLoEPapOkuAPFkDA6flCwvAaUxQb_aSlAzwViPTK3jiY0irQqIzM78B-DVt50s5Mh0FUt66q1UxbX5t8hzrpU3S7X9ByUHlp_g0fwwI3bKoe_nlxxUfBNcGYOUgML2b6SGYq-EPCVNPyd96EPZQKJ2vFHkFuP7LKDqrU4FxtHMUDy7dUQkMQR9oYeMF8VVKOTjX-GThPDcm3eLV5u8O2dxIQ8XXJ2N4fvyo3SQEML5tbOEq1zOf9iv_OcPb_fZI0BiQvqxBf5aH6AkFhS-RlLFqC5zk&lib=MEoXfsZS0V3rHY2Z_S8VN8jTDv19RCRyF",
 };
 
-const CACHE_TTL = 600; // 10 minutes — matches update hourly
+// Cache for 1 hour, but refresh in background after 10 minutes
+const MAX_AGE = 3600;
+const STALE_AFTER = 600;
 
-export const onRequest: PagesFunction = async ({ request }) => {
+async function fetchUpstream(upstream: string): Promise<Response> {
+  const response = await fetch(upstream, {
+    headers: { Accept: "application/json" },
+  });
+  if (!response.ok) throw new Error("Upstream error");
+  return response;
+}
+
+function buildResponse(data: string): Response {
+  return new Response(data, {
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": `public, max-age=${MAX_AGE}, s-maxage=${MAX_AGE}`,
+      "X-Cached-At": String(Date.now()),
+    },
+  });
+}
+
+export const onRequest: PagesFunction = async (context) => {
+  const { request } = context;
   const url = new URL(request.url);
   const route = url.pathname.replace("/api/", "");
   const upstream = URLS[route];
@@ -19,26 +40,31 @@ export const onRequest: PagesFunction = async ({ request }) => {
   const cache = caches.default;
   const cacheKey = new Request(url.toString(), request);
   const cached = await cache.match(cacheKey);
-  if (cached) return cached;
 
-  const response = await fetch(upstream, {
-    headers: { Accept: "application/json" },
-  });
-
-  if (!response.ok) {
-    return new Response("Upstream error", { status: 502 });
+  if (cached) {
+    // Check if stale — if so, refresh in background but serve immediately
+    const cachedAt = Number(cached.headers.get("X-Cached-At") || 0);
+    if (Date.now() - cachedAt > STALE_AFTER * 1000) {
+      context.waitUntil(
+        fetchUpstream(upstream)
+          .then(async (res) => {
+            const data = await res.text();
+            await cache.put(cacheKey, buildResponse(data));
+          })
+          .catch(() => {}),
+      );
+    }
+    return cached;
   }
 
-  const data = await response.text();
-
-  const result = new Response(data, {
-    headers: {
-      "Content-Type": "application/json",
-      "Cache-Control": `public, max-age=${CACHE_TTL}, s-maxage=${CACHE_TTL}`,
-    },
-  });
-
-  await cache.put(cacheKey, result.clone());
-
-  return result;
+  // Cold cache — must wait (only happens once ever)
+  try {
+    const res = await fetchUpstream(upstream);
+    const data = await res.text();
+    const result = buildResponse(data);
+    await cache.put(cacheKey, result.clone());
+    return result;
+  } catch {
+    return new Response("Upstream error", { status: 502 });
+  }
 };
