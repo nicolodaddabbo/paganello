@@ -224,3 +224,21 @@
   line-height: 1.6;
   margin-bottom: 8px;
 }
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  opacity: 0.6;
+}
+
+.madeBy {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: var(--spacing-md);
+}
+
+.madeBy a {
+  color: var(--primary);
+  font-weight: 600;
+}

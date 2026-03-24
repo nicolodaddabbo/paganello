@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface Countdown {
   hours: number;
@@ -10,27 +10,35 @@ interface Countdown {
 }
 
 export function useCountdown(targetDate: Date | null): Countdown {
-  const [countdown, setCountdown] = useState<Countdown>(() => calculate(targetDate));
+  const targetTime = targetDate?.getTime() ?? null;
+  const [countdown, setCountdown] = useState<Countdown>(() => calculate(targetTime));
+  const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
   useEffect(() => {
-    if (!targetDate) return;
+    if (targetTime === null) return;
 
-    const update = () => setCountdown(calculate(targetDate));
+    const update = () => {
+      const result = calculate(targetTime);
+      setCountdown(result);
+      if (result.isExpired && intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
     update();
 
-    const interval = setInterval(update, 1000);
-    return () => clearInterval(interval);
-  }, [targetDate]);
+    intervalRef.current = setInterval(update, 1000);
+    return () => clearInterval(intervalRef.current);
+  }, [targetTime]);
 
   return countdown;
 }
 
-function calculate(target: Date | null): Countdown {
-  if (!target) {
+function calculate(targetTime: number | null): Countdown {
+  if (targetTime === null) {
     return { hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, isExpired: true, display: '--:--' };
   }
 
-  const diff = target.getTime() - Date.now();
+  const diff = targetTime - Date.now();
   if (diff <= 0) {
     return { hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, isExpired: true, display: '0:00' };
   }

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { Match } from '../../types/match';
 import { formatTime } from '../../utils/time';
+import { isPlaceholder } from '../../utils/match';
 import styles from './BracketView.module.css';
 
 interface Props {
@@ -30,10 +31,6 @@ function getRoundKey(matchType: string): string | null {
 function getPlacementRange(matchType: string): string {
   const m = matchType.match(/\(([^)]+)\)/);
   return m ? m[1] : '';
-}
-
-function isPlaceholder(name: string): boolean {
-  return /^[A-Z0-9]{1,4}$/.test(name.trim()) || /^[A-Z]{1,3}\d+$/.test(name.trim());
 }
 
 interface RoundData {

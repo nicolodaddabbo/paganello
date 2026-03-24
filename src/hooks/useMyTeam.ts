@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocalStorage } from '../utils/localStorage';
 
 export function useMyTeam() {
@@ -17,16 +17,19 @@ export function useMyTeam() {
     );
   }, [setFollowedTeams]);
 
-  const isFollowed = useCallback((team: string) => {
-    const lower = team.toLowerCase();
-    if (myTeam && lower === myTeam.toLowerCase()) return true;
-    return followedTeams.some(t => t.toLowerCase() === lower);
+  const allFollowed = useMemo(() => {
+    if (!myTeam) return followedTeams;
+    const myLower = myTeam.toLowerCase();
+    return [myTeam, ...followedTeams.filter(t => t.toLowerCase() !== myLower)];
   }, [myTeam, followedTeams]);
 
-  // All followed teams including primary
-  const allFollowed = myTeam
-    ? [myTeam, ...followedTeams.filter(t => t.toLowerCase() !== myTeam.toLowerCase())]
-    : followedTeams;
+  const followedSet = useMemo(() => {
+    return new Set(allFollowed.map(t => t.toLowerCase()));
+  }, [allFollowed]);
+
+  const isFollowed = useCallback((team: string) => {
+    return followedSet.has(team.toLowerCase());
+  }, [followedSet]);
 
   const hasChosenMode = myTeam !== null || promptDismissed;
 

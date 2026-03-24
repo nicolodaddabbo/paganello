@@ -139,15 +139,6 @@ export function getDayLabel(day: string): string {
   return labels[day] || day;
 }
 
-export function getDayShort(day: string): string {
-  const labels: Record<string, string> = {
-    saturday: 'Sat',
-    sunday: 'Sun',
-    monday: 'Mon',
-  };
-  return labels[day] || day;
-}
-
 /** Extract clean start time from slot like "09:00 - 09-09:45" → "09:00" */
 export function formatTime(time: string): string {
   const m = time.match(/^(\d{1,2}:\d{2})/);

@@ -2,12 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import type { Match } from '../types/match';
 import { fetchSchedule } from '../services/scheduleService';
 import { getMatchStatus, getMatchDate, getRelativeTime, getDayLabel, formatTime } from '../utils/time';
+import { useVisibilityRefresh } from '../hooks/useVisibilityRefresh';
 import DivisionBadge from '../components/common/DivisionBadge';
 import styles from './NowPage.module.css';
 
 export default function NowPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
+  const refreshKey = useVisibilityRefresh();
 
   useEffect(() => {
     const load = () => {
@@ -16,7 +18,7 @@ export default function NowPage() {
     load();
     const interval = setInterval(load, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [refreshKey]);
 
   const liveMatches = useMemo(
     () => matches.filter(m => getMatchStatus(m) === 'live'),
@@ -29,6 +31,8 @@ export default function NowPage() {
       .sort((a, b) => getMatchDate(a).getTime() - getMatchDate(b).getTime());
     return upcoming[0] || null;
   }, [matches]);
+
+  const nextUpcomingRel = nextUpcoming ? getRelativeTime(getMatchDate(nextUpcoming)) : '';
 
   if (loading) {
     return (
@@ -50,7 +54,7 @@ export default function NowPage() {
           {nextUpcoming && (
             <p className={styles.nextUp}>
               Next game: {getDayLabel(nextUpcoming.day)} at {formatTime(nextUpcoming.time)}
-              {(() => { const rel = getRelativeTime(getMatchDate(nextUpcoming)); return rel ? ` (${rel})` : ''; })()}
+              {nextUpcomingRel ? ` (${nextUpcomingRel})` : ''}
             </p>
           )}
         </div>

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import type { Match } from '../../types/match';
 import { getMatchStatus, getRelativeTime, getMatchDate, getDayLabel, formatTime, getMatchPerspective, DAYS } from '../../utils/time';
 import DivisionBadge from '../common/DivisionBadge';
@@ -38,7 +39,7 @@ export default function TeamDaySchedule({ matches, myTeam, day, onDayChange }: P
             const rel = getRelativeTime(matchDate);
 
             return (
-              <div key={match.id} className={`${styles.item} ${styles[status]}`}>
+              <Link to={`/match/${match.id}`} key={match.id} className={`${styles.item} ${styles[status]}`}>
                 <div className={styles.time}>
                   <span>{formatTime(match.time)}</span>
                   {status === 'upcoming' && rel && (
@@ -60,7 +61,7 @@ export default function TeamDaySchedule({ matches, myTeam, day, onDayChange }: P
                     )}
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

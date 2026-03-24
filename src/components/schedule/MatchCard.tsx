@@ -2,24 +2,8 @@ import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Match } from '../../types/match';
 import { getMatchStatus, formatTime } from '../../utils/time';
+import { DIVISION_COLORS, isPlaceholder, isKnockout } from '../../utils/match';
 import styles from './MatchCard.module.css';
-
-const DIV_COLORS: Record<string, string> = {
-  RM: 'var(--div-rm)',
-  LM: 'var(--div-lm)',
-  O: 'var(--div-o)',
-  W: 'var(--div-w)',
-  U20: 'var(--div-u20)',
-  U15: 'var(--div-u15)',
-};
-
-function isPlaceholder(name: string): boolean {
-  return /^[A-Z0-9]{1,4}$/.test(name.trim()) || /^[A-Z]{1,3}\d+$/.test(name.trim());
-}
-
-function isKnockout(matchType: string): boolean {
-  return /\b(Q\d|S\d|F\d|Semi|Final|Quarter|Bronze|Arena)\b/i.test(matchType);
-}
 
 interface Props {
   match: Match;
@@ -29,16 +13,15 @@ interface Props {
 
 function MatchCard({ match, isFollowed, showTime = false }: Props) {
   const status = getMatchStatus(match);
-  const hasScore = match.hasScore;
   const t1Followed = isFollowed?.(match.team1) ?? false;
   const t2Followed = isFollowed?.(match.team2) ?? false;
   const isMyGame = t1Followed || t2Followed;
   const knockout = isKnockout(match.matchType);
   const isArena = match.field === 'Paganello Arena';
-  const divColor = DIV_COLORS[match.division] || 'var(--border)';
+  const divColor = DIVISION_COLORS[match.division] || 'var(--border)';
 
-  const t1Wins = hasScore && match.score1 > match.score2;
-  const t2Wins = hasScore && match.score2 > match.score1;
+  const t1Wins = match.hasScore && match.score1 > match.score2;
+  const t2Wins = match.hasScore && match.score2 > match.score1;
   const t1Placeholder = isPlaceholder(match.team1);
   const t2Placeholder = isPlaceholder(match.team2);
 
@@ -61,7 +44,7 @@ function MatchCard({ match, isFollowed, showTime = false }: Props) {
       </div>
 
       <div className={styles.scoreCol}>
-        {hasScore ? (
+        {match.hasScore ? (
           <>
             {t1Wins && <span className={styles.arrow}>◄</span>}
             <span className={t1Wins ? styles.winScore : styles.loseScore}>{match.score1}</span>

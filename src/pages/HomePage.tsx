@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Match, Filters } from '../types/match';
-import { fetchSchedule, getUniqueTeams } from '../services/scheduleService';
+import { fetchSchedule, getUniqueTeams, getUniqueFields } from '../services/scheduleService';
 import { filterMatches, getDefaultFilters } from '../utils/filters';
 import { getNextMatch, getTeamMatches, getTodayString, getDayLabel, formatTime, DAYS } from '../utils/time';
 import { useLocalStorage } from '../utils/localStorage';
@@ -44,28 +44,10 @@ export default function HomePage() {
   const nextMatch = useMemo(() => myTeam ? getNextMatch(matches, myTeam) : null, [matches, myTeam]);
   const teamMatches = useMemo(() => myTeam ? getTeamMatches(matches, myTeam) : [], [matches, myTeam]);
 
-  const availableFields = useMemo(() => {
-    const fields = new Set<string>();
-    matches.forEach(m => fields.add(m.field));
-    return ['all', ...Array.from(fields).sort()];
-  }, [matches]);
+  const availableFields = useMemo(() => getUniqueFields(matches), [matches]);
 
-  const availableTimes = useMemo(() => {
-    const times = new Set<string>();
-    matches.forEach(m => times.add(m.time));
-    return ['all', ...Array.from(times).sort()];
-  }, [matches]);
-
-  // Filter pipeline: base filters → my games → day
   const baseFiltered = useMemo(() => {
-    let result = filterMatches(matches, filters, [], false);
-    if (showMyGamesOnly && allFollowed.length > 0) {
-      const lowers = new Set(allFollowed.map(t => t.toLowerCase()));
-      result = result.filter(m =>
-        lowers.has(m.team1.toLowerCase()) || lowers.has(m.team2.toLowerCase())
-      );
-    }
-    return result;
+    return filterMatches(matches, filters, allFollowed, showMyGamesOnly);
   }, [matches, filters, showMyGamesOnly, allFollowed]);
 
   const filteredMatches = useMemo(
@@ -159,7 +141,6 @@ export default function HomePage() {
             showFilters={showFilters}
             setShowFilters={setShowFilters}
             availableFields={availableFields}
-            availableTimes={availableTimes}
             myTeamsOnly={showMyGamesOnly}
             setMyTeamsOnly={setShowMyGamesOnly}
             hasFollowed={allFollowed.length > 0}

@@ -3,7 +3,7 @@ interface CacheEntry<T> {
   timestamp: number;
 }
 
-const DEFAULT_DURATION = 5 * 60 * 1000;
+const DEFAULT_DURATION = 30 * 60 * 1000;
 
 async function fetchWithFallback(url: string, fallbackUrl?: string): Promise<Response> {
   try {
@@ -27,12 +27,15 @@ export async function fetchWithCache<T>(
 ): Promise<T> {
   const cached = getCachedData<T>(cacheKey);
 
-  if (cached && !isCacheExpired(cached.timestamp, cacheDuration)) {
-    // Fresh cache — return immediately, refresh in background
-    fetchWithFallback(url, fallbackUrl)
-      .then(r => r.json())
-      .then(data => setCachedData(cacheKey, data))
-      .catch(() => {});
+  if (cached) {
+    const stale = isCacheExpired(cached.timestamp, cacheDuration);
+    if (stale) {
+      // Stale cache — return immediately, refresh in background
+      fetchWithFallback(url, fallbackUrl)
+        .then(r => r.json())
+        .then(data => setCachedData(cacheKey, data))
+        .catch(() => {});
+    }
     return cached.data;
   }
 
@@ -42,7 +45,6 @@ export async function fetchWithCache<T>(
     setCachedData(cacheKey, data);
     return data;
   } catch {
-    if (cached) return cached.data;
     throw new Error('Failed to fetch data and no cache available');
   }
 }
@@ -65,14 +67,4 @@ function setCachedData<T>(key: string, data: T): void {
 
 function isCacheExpired(timestamp: number, duration: number): boolean {
   return Date.now() - timestamp > duration;
-}
-
-export function getCacheTimestamp(cacheKey: string): number | null {
-  try {
-    const item = localStorage.getItem(`cache_${cacheKey}`);
-    if (!item) return null;
-    return JSON.parse(item).timestamp || null;
-  } catch {
-    return null;
-  }
 }

@@ -9,7 +9,6 @@ interface Props {
   showFilters: boolean;
   setShowFilters: (show: boolean) => void;
   availableFields: string[];
-  availableTimes?: string[];
   myTeamsOnly?: boolean;
   setMyTeamsOnly?: (v: boolean) => void;
   hasFollowed?: boolean;

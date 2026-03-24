@@ -7,6 +7,8 @@
   position: sticky;
   top: 0;
   z-index: 90;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .logo {
@@ -27,4 +29,33 @@
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.01em;
+}
+
+.discRain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.disc {
+  position: absolute;
+  top: -50px;
+  font-size: 2rem;
+  animation: disc-fall linear forwards;
+}
+
+@keyframes disc-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
 }

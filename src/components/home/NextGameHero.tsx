@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { Link } from 'react-router-dom';
 import type { Match } from '../../types/match';
 import { getMatchDate, getMatchStatus, getRelativeTime, getDayLabel, formatTime, getMatchPerspective } from '../../utils/time';
 import { useCountdown } from '../../hooks/useCountdown';
@@ -40,7 +41,7 @@ function NextGameHero({ match, myTeam }: Props) {
   const matchDate = getMatchDate(match);
 
   return (
-    <div className={`${styles.hero} ${status === 'live' ? styles.live : ''}`}>
+    <Link to={`/match/${match.id}`} className={`${styles.hero} ${status === 'live' ? styles.live : ''}`}>
       <div className={styles.header}>
         <span className={styles.teamLabel}>{myTeam}</span>
         <DivisionBadge division={match.division} compact />
@@ -81,7 +82,7 @@ function NextGameHero({ match, myTeam }: Props) {
         <span>{match.field}</span>
       </div>
       <div className={styles.matchType}>{match.matchType}</div>
-    </div>
+    </Link>
   );
 }
 
