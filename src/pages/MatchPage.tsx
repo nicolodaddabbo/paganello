@@ -15,7 +15,7 @@ export default function MatchPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchSchedule().then(setMatches).catch(() => {}).finally(() => setLoading(false));
+    fetchSchedule().then(setMatches).catch(() => { }).finally(() => setLoading(false));
   }, []);
 
   const match = useMemo(() => matches.find(m => m.id === matchId), [matches, matchId]);
@@ -130,13 +130,6 @@ export default function MatchPage() {
             <span className={styles.detailValue}>{match.field}</span>
           </div>
         </div>
-
-        {/* Actions */}
-        {match.hasScore && (
-          <button className={styles.shareBtn} onClick={() => shareMatch(match)}>
-            Share result
-          </button>
-        )}
       </div>
 
       {/* Pool context */}
