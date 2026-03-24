@@ -3,7 +3,7 @@ name: Update Tournament Data
 on:
   schedule:
     # Every 3 minutes during tournament hours
-    - cron: '*/3 * * * *'
+    - cron: "*/3 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -16,14 +16,14 @@ jobs:
       - name: Check if tournament is active
         id: check-date
         run: |
-          TODAY=$(date -u +%Y-%m-%d)
-          # Tournament: April 4-6, 2026 (extend by 1 day for safety)
-          if [[ "$TODAY" < "2026-04-04" || "$TODAY" > "2026-04-07" ]]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-            echo "Outside tournament dates, skipping"
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
+          # TODAY=$(date -u +%Y-%m-%d)
+          # # Tournament: April 4-6, 2026 (extend by 1 day for safety)
+          # if [[ "$TODAY" < "2026-04-04" || "$TODAY" > "2026-04-07" ]]; then
+          #   echo "skip=true" >> $GITHUB_OUTPUT
+          #   echo "Outside tournament dates, skipping"
+          # else
+          echo "skip=false" >> $GITHUB_OUTPUT
+          # fi
 
       - name: Checkout
         if: steps.check-date.outputs.skip != 'true'
