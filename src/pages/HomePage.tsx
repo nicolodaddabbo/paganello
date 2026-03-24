@@ -22,7 +22,6 @@ export default function HomePage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [day, setDay] = useState(getTodayString());
-  const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
   const [filters, setFilters] = useLocalStorage<Filters>('paganello-filters', getDefaultFilters());
   const [showFilters, setShowFilters] = useState(false);
@@ -107,10 +106,6 @@ export default function HomePage() {
     setShowTeamPicker(false);
   };
 
-  const updatedAgo = lastUpdated
-    ? `Updated ${Math.round((Date.now() - lastUpdated) / 60000)}m ago`
-    : null;
-
   return (
     <div className={styles.page}>
       {/* My Team hero */}
@@ -136,7 +131,6 @@ export default function HomePage() {
       <div className={styles.scheduleSection}>
         <div className={styles.header}>
           <h2 className={styles.title}>{myTeam ? 'All Matches' : 'Schedule'}</h2>
-          {updatedAgo && <span className={styles.updated}>{updatedAgo}</span>}
         </div>
 
         {/* Day tabs */}
