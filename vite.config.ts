@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-const base = process.env.NODE_ENV === 'production' ? '/paganello/' : '/'
+const base = '/'
 
 export default defineConfig({
   plugins: [
@@ -15,32 +15,6 @@ export default defineConfig({
         // Don't wait for old SW to stop — activate immediately
         skipWaiting: true,
         clientsClaim: true,
-        runtimeCaching: [
-          {
-            // Data files: serve from cache first, update in background
-            urlPattern: /\/data\/.*\.json$/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'tournament-data',
-              expiration: {
-                maxAgeSeconds: 3600, // 1 hour in SW cache
-                maxEntries: 10,
-              },
-            },
-          },
-          {
-            // Google Apps Script fallback URLs
-            urlPattern: /^https:\/\/script\.googleusercontent\.com/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'api-fallback',
-              expiration: {
-                maxAgeSeconds: 3600,
-                maxEntries: 5,
-              },
-            },
-          },
-        ],
       },
       manifest: {
         name: 'Paganello 2026',
@@ -73,4 +47,12 @@ export default defineConfig({
     }),
   ],
   base,
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8788',
+        changeOrigin: true,
+      },
+    },
+  },
 })
