@@ -6,7 +6,6 @@ import { getNextMatch, getTeamMatches, getTodayString, getDayLabel, formatTime, 
 import { useLocalStorage } from '../utils/localStorage';
 import { useMyTeam } from '../hooks/useMyTeam';
 import { useVisibilityRefresh } from '../hooks/useVisibilityRefresh';
-import { getCacheTimestamp } from '../utils/cache';
 import NextGameHero from '../components/home/NextGameHero';
 import TeamDaySchedule from '../components/home/TeamDaySchedule';
 import TeamPrompt from '../components/home/TeamPrompt';
@@ -22,7 +21,6 @@ export default function HomePage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [day, setDay] = useState(getTodayString());
-  const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
   const [filters, setFilters] = useLocalStorage<Filters>('paganello-filters', getDefaultFilters());
   const [showFilters, setShowFilters] = useState(false);
@@ -37,34 +35,14 @@ export default function HomePage() {
     fetchSchedule()
       .then(data => {
         setMatches(data);
-        setLastUpdated(getCacheTimestamp('paganello-schedule'));
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, [refreshKey]);
 
   const teams = useMemo(() => getUniqueTeams(matches), [matches]);
   const nextMatch = useMemo(() => myTeam ? getNextMatch(matches, myTeam) : null, [matches, myTeam]);
   const teamMatches = useMemo(() => myTeam ? getTeamMatches(matches, myTeam) : [], [matches, myTeam]);
-
-  const stats = useMemo(() => {
-    const teamNames = new Set<string>();
-    const divisions = new Set<string>();
-    matches.forEach(m => {
-      if (m.team1 && !/^[A-Z0-9]{1,4}$/.test(m.team1.trim()) && !/^[A-Z]{1,3}\d+$/.test(m.team1.trim())) {
-        teamNames.add(m.team1);
-      }
-      if (m.team2 && !/^[A-Z0-9]{1,4}$/.test(m.team2.trim()) && !/^[A-Z]{1,3}\d+$/.test(m.team2.trim())) {
-        teamNames.add(m.team2);
-      }
-      if (m.division !== 'Unknown') divisions.add(m.division);
-    });
-    return {
-      teams: teamNames.size,
-      games: matches.length,
-      divisions: divisions.size,
-    };
-  }, [matches]);
 
   const availableFields = useMemo(() => {
     const fields = new Set<string>();
@@ -94,12 +72,6 @@ export default function HomePage() {
     () => selectedDay === 'all' ? baseFiltered : baseFiltered.filter(m => m.day === selectedDay),
     [baseFiltered, selectedDay]
   );
-
-  const dayCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: baseFiltered.length };
-    DAYS.forEach(d => { counts[d] = baseFiltered.filter(m => m.day === d).length; });
-    return counts;
-  }, [baseFiltered]);
 
   // Group matches by time slot
   const groupedMatches = useMemo(() => {
@@ -132,10 +104,6 @@ export default function HomePage() {
     setShowTeamPicker(false);
   };
 
-  const updatedAgo = lastUpdated
-    ? `Updated ${Math.round((Date.now() - lastUpdated) / 60000)}m ago`
-    : null;
-
   return (
     <div className={styles.page}>
       {/* My Team hero */}
@@ -157,31 +125,10 @@ export default function HomePage() {
         />
       )}
 
-      {/* Tournament Stats */}
-      {!loading && matches.length > 0 && (
-        <div className={styles.statsBar}>
-          <div className={styles.statItem}>
-            <span className={styles.statNumber}>{stats.teams}</span>
-            <span className={styles.statLabel}>Teams</span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.statItem}>
-            <span className={styles.statNumber}>{stats.games}</span>
-            <span className={styles.statLabel}>Games</span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.statItem}>
-            <span className={styles.statNumber}>{stats.divisions}</span>
-            <span className={styles.statLabel}>Divisions</span>
-          </div>
-        </div>
-      )}
-
       {/* Schedule */}
       <div className={styles.scheduleSection}>
         <div className={styles.header}>
           <h2 className={styles.title}>{myTeam ? 'All Matches' : 'Schedule'}</h2>
-          {updatedAgo && <span className={styles.updated}>{updatedAgo}</span>}
         </div>
 
         {/* Day tabs */}
@@ -192,29 +139,19 @@ export default function HomePage() {
               className={`${styles.dayTab} ${d === selectedDay ? styles.dayTabActive : ''}`}
               onClick={() => setSelectedDay(d)}
             >
-              <span className={styles.dayLabel}>{getDayLabel(d)}</span>
-              <span className={styles.dayCount}>{dayCounts[d] || 0}</span>
+              {getDayLabel(d)}
             </button>
           ))}
           <button
             className={`${styles.dayTab} ${selectedDay === 'all' ? styles.dayTabActive : ''}`}
             onClick={() => setSelectedDay('all')}
           >
-            <span className={styles.dayLabel}>All</span>
-            <span className={styles.dayCount}>{dayCounts.all || 0}</span>
+            All
           </button>
         </div>
 
         {/* Quick toggles */}
         <div className={styles.toggleRow}>
-          {allFollowed.length > 0 && (
-            <button
-              className={`${styles.chip} ${showMyGamesOnly ? styles.chipActive : ''}`}
-              onClick={() => setShowMyGamesOnly(!showMyGamesOnly)}
-            >
-              My games
-            </button>
-          )}
           <FilterBar
             filters={filters}
             updateFilter={updateFilter}
@@ -223,6 +160,9 @@ export default function HomePage() {
             setShowFilters={setShowFilters}
             availableFields={availableFields}
             availableTimes={availableTimes}
+            myTeamsOnly={showMyGamesOnly}
+            setMyTeamsOnly={setShowMyGamesOnly}
+            hasFollowed={allFollowed.length > 0}
           />
         </div>
 

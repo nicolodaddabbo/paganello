@@ -19,8 +19,7 @@
 .logoImg {
   height: 22px;
   width: auto;
-  /* SVG is blue (#009fe3), make it white on the blue header */
-  filter: brightness(100);
+  filter: brightness(0) invert(1);
 }
 
 .title {

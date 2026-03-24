@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import type { Match } from '../types/match';
 import { fetchSchedule } from '../services/scheduleService';
 import { getMatchStatus, getDayLabel, formatTime } from '../utils/time';
-import { shareMatch } from '../utils/share';
 import { useMyTeam } from '../hooks/useMyTeam';
 import DivisionBadge from '../components/common/DivisionBadge';
 import styles from './MatchPage.module.css';
@@ -15,7 +14,7 @@ export default function MatchPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchSchedule().then(setMatches).catch(() => {}).finally(() => setLoading(false));
+    fetchSchedule().then(setMatches).catch(() => { }).finally(() => setLoading(false));
   }, []);
 
   const match = useMemo(() => matches.find(m => m.id === matchId), [matches, matchId]);
@@ -130,13 +129,6 @@ export default function MatchPage() {
             <span className={styles.detailValue}>{match.field}</span>
           </div>
         </div>
-
-        {/* Actions */}
-        {match.hasScore && (
-          <button className={styles.shareBtn} onClick={() => shareMatch(match)}>
-            Share result
-          </button>
-        )}
       </div>
 
       {/* Pool context */}
