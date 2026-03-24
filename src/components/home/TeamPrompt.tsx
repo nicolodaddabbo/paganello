@@ -13,7 +13,7 @@ export default function TeamPrompt({ teams, onSelectTeam, onDismiss, expanded, o
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
-    if (!search) return teams;
+    if (!search) return [];
     const q = search.toLowerCase();
     return teams.filter(t => t.toLowerCase().includes(q));
   }, [teams, search]);

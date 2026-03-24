@@ -16,7 +16,7 @@ export default function MorePage() {
   }, []);
 
   const filtered = useMemo(() => {
-    if (!search) return teams;
+    if (!search) return [];
     const q = search.toLowerCase();
     return teams.filter(t => t.toLowerCase().includes(q));
   }, [teams, search]);
