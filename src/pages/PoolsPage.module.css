@@ -162,3 +162,17 @@
   color: var(--text-muted);
   padding: var(--spacing-xl);
 }
+
+.search {
+  width: 100%;
+  margin-bottom: var(--spacing-md);
+}
+
+.highlighted {
+  background: var(--primary-glow);
+}
+
+.highlighted .teamCell {
+  color: var(--primary);
+  font-weight: 800;
+}
