@@ -112,24 +112,6 @@
   min-width: 0;
 }
 
-.chip {
-  padding: 8px 16px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  white-space: nowrap;
-  color: var(--text-secondary);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  min-height: 40px;
-  flex-shrink: 0;
-}
-
-.chipActive {
-  color: var(--primary);
-  border-color: var(--primary);
-  background: var(--primary-glow);
-}
 
 /* Time groups */
 .timeGroup {

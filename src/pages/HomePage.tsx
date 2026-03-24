@@ -39,32 +39,13 @@ export default function HomePage() {
         setMatches(data);
         setLastUpdated(getCacheTimestamp('paganello-schedule'));
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, [refreshKey]);
 
   const teams = useMemo(() => getUniqueTeams(matches), [matches]);
   const nextMatch = useMemo(() => myTeam ? getNextMatch(matches, myTeam) : null, [matches, myTeam]);
   const teamMatches = useMemo(() => myTeam ? getTeamMatches(matches, myTeam) : [], [matches, myTeam]);
-
-  const stats = useMemo(() => {
-    const teamNames = new Set<string>();
-    const divisions = new Set<string>();
-    matches.forEach(m => {
-      if (m.team1 && !/^[A-Z0-9]{1,4}$/.test(m.team1.trim()) && !/^[A-Z]{1,3}\d+$/.test(m.team1.trim())) {
-        teamNames.add(m.team1);
-      }
-      if (m.team2 && !/^[A-Z0-9]{1,4}$/.test(m.team2.trim()) && !/^[A-Z]{1,3}\d+$/.test(m.team2.trim())) {
-        teamNames.add(m.team2);
-      }
-      if (m.division !== 'Unknown') divisions.add(m.division);
-    });
-    return {
-      teams: teamNames.size,
-      games: matches.length,
-      divisions: divisions.size,
-    };
-  }, [matches]);
 
   const availableFields = useMemo(() => {
     const fields = new Set<string>();
@@ -151,26 +132,6 @@ export default function HomePage() {
         />
       )}
 
-      {/* Tournament Stats */}
-      {!loading && matches.length > 0 && (
-        <div className={styles.statsBar}>
-          <div className={styles.statItem}>
-            <span className={styles.statNumber}>{stats.teams}</span>
-            <span className={styles.statLabel}>Teams</span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.statItem}>
-            <span className={styles.statNumber}>{stats.games}</span>
-            <span className={styles.statLabel}>Games</span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.statItem}>
-            <span className={styles.statNumber}>{stats.divisions}</span>
-            <span className={styles.statLabel}>Divisions</span>
-          </div>
-        </div>
-      )}
-
       {/* Schedule */}
       <div className={styles.scheduleSection}>
         <div className={styles.header}>
@@ -199,14 +160,6 @@ export default function HomePage() {
 
         {/* Quick toggles */}
         <div className={styles.toggleRow}>
-          {allFollowed.length > 0 && (
-            <button
-              className={`${styles.chip} ${showMyGamesOnly ? styles.chipActive : ''}`}
-              onClick={() => setShowMyGamesOnly(!showMyGamesOnly)}
-            >
-              My games
-            </button>
-          )}
           <FilterBar
             filters={filters}
             updateFilter={updateFilter}
@@ -215,6 +168,9 @@ export default function HomePage() {
             setShowFilters={setShowFilters}
             availableFields={availableFields}
             availableTimes={availableTimes}
+            myTeamsOnly={showMyGamesOnly}
+            setMyTeamsOnly={setShowMyGamesOnly}
+            hasFollowed={allFollowed.length > 0}
           />
         </div>
 
