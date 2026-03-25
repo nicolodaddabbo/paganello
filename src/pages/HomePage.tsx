@@ -9,9 +9,12 @@ import { useVisibilityRefresh } from '../hooks/useVisibilityRefresh';
 import NextGameHero from '../components/home/NextGameHero';
 import TeamDaySchedule from '../components/home/TeamDaySchedule';
 import TeamPrompt from '../components/home/TeamPrompt';
+import FaberEasterEgg from '../components/home/FaberEasterEgg';
 import FilterBar from '../components/schedule/FilterBar';
 import MatchCard from '../components/schedule/MatchCard';
 import styles from './HomePage.module.css';
+
+const FABER_TRIGGER = '7 cloni di faber';
 
 const INITIAL_SHOW = 30;
 const LOAD_MORE = 30;
@@ -81,6 +84,8 @@ export default function HomePage() {
 
   const clearFilters = useCallback(() => setFilters(getDefaultFilters()), [setFilters]);
 
+  const faberActive = filters.search.trim().toLowerCase() === FABER_TRIGGER;
+
   const handleSelectTeam = (team: string) => {
     setMyTeam(team);
     setShowTeamPicker(false);
@@ -88,6 +93,7 @@ export default function HomePage() {
 
   return (
     <div className={styles.page}>
+      {faberActive && <FaberEasterEgg onClose={clearFilters} />}
       {/* My Team hero */}
       {myTeam && (
         <div className={styles.myTeamSection}>
