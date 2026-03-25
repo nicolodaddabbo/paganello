@@ -22,6 +22,13 @@ export default function App() {
           <Route path="live" element={<NowPage />} />
           <Route path="more" element={<MorePage />} />
           <Route path="sotg" element={<SOTGPage />} />
+          <Route path="*" element={
+            <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+              <h1 style={{ fontSize: '3rem', fontWeight: 900 }}>404</h1>
+              <p style={{ color: '#999', margin: '1rem 0' }}>Page not found</p>
+              <a href="/" style={{ color: '#009fe3', fontWeight: 600 }}>Back to schedule</a>
+            </div>
+          } />
         </Route>
       </Routes>
     </BrowserRouter>

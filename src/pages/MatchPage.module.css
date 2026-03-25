@@ -94,6 +94,13 @@
   background: var(--primary-glow);
 }
 
+.flag {
+  display: block;
+  font-size: 1.5rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
 .teamName.winner {
   font-weight: 900;
 }

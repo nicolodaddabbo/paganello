@@ -7,6 +7,8 @@ export interface RawMatchData {
   score2: number;
 }
 
+export type FlagMap = Record<string, string>;
+
 export interface RawScheduleData {
   saturday: {
     [time: string]: RawMatchData[];
@@ -17,6 +19,7 @@ export interface RawScheduleData {
   monday: {
     [time: string]: RawMatchData[];
   };
+  flags: FlagMap;
 }
 
 export interface Match {

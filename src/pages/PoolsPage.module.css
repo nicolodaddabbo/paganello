@@ -172,6 +172,10 @@
   background: var(--primary-glow);
 }
 
+.flag {
+  margin-right: 4px;
+}
+
 .highlighted .teamCell {
   color: var(--primary);
   font-weight: 800;

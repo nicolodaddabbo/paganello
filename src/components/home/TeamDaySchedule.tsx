@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { Match } from '../../types/match';
 import { getMatchStatus, getRelativeTime, getMatchDate, getDayLabel, formatTime, getMatchPerspective, DAYS } from '../../utils/time';
+import { getFlag } from '../../services/scheduleService';
 import DivisionBadge from '../common/DivisionBadge';
 import styles from './TeamDaySchedule.module.css';
 
@@ -48,7 +49,7 @@ export default function TeamDaySchedule({ matches, myTeam, day, onDayChange }: P
                 </div>
                 <div className={styles.content}>
                   <div className={styles.top}>
-                    <span className={styles.opponent}>vs {opponent}</span>
+                    <span className={styles.opponent}>vs {getFlag(opponent)} {opponent}</span>
                     <DivisionBadge division={match.division} compact />
                   </div>
                   <div className={styles.bottom}>

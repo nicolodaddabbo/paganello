@@ -5,6 +5,7 @@ const tabs = [
   { to: '/', label: 'Schedule', icon: '▤' },
   { to: '/pools', label: 'Standings', icon: '◉' },
   { to: '/live', label: 'Live', icon: '●' },
+  { to: '/sotg', label: 'Spirit', icon: '✦' },
   { to: '/more', label: 'More', icon: '⋯' },
 ];
 

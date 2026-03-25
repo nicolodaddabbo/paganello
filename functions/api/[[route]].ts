@@ -422,14 +422,29 @@ function buildResponse(data: string): Response {
 }
 
 async function fetchScheduleData(): Promise<string> {
-  const csvResults = await Promise.all(
-    SCHEDULE_SHEETS.map(async (day) => {
-      const csv = await fetchCSV(day);
-      return [day, parseCSV(csv)] as const;
-    }),
-  );
-  const sheets = new Map(csvResults);
-  return JSON.stringify(buildSchedule(sheets));
+  const [scheduleResults, flagsCsv] = await Promise.all([
+    Promise.all(
+      SCHEDULE_SHEETS.map(async (day) => {
+        const csv = await fetchCSV(day);
+        return [day, parseCSV(csv)] as const;
+      }),
+    ),
+    fetchCSV("Nationalities"),
+  ]);
+  const sheets = new Map(scheduleResults);
+  const schedule = buildSchedule(sheets);
+  const flags = buildFlags(parseCSV(flagsCsv));
+  return JSON.stringify({ ...schedule, flags });
+}
+
+function buildFlags(data: string[][]): Record<string, string> {
+  const flags: Record<string, string> = {};
+  for (let r = 1; r < data.length; r++) {
+    const name = (data[r][0] || "").trim();
+    const flag = (data[r][2] || "").trim();
+    if (name && flag) flags[name] = flag;
+  }
+  return flags;
 }
 
 async function fetchPoolsData(): Promise<string> {
@@ -459,7 +474,7 @@ export const onRequest: PagesFunction = async (context) => {
   }
 
   const cache = caches.default;
-  const cacheKey = new Request(url.toString());
+  const cacheKey = new Request(url.toString() + "?v=2");
   const cached = await cache.match(cacheKey);
 
   if (cached) {

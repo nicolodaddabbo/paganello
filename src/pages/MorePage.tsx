@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useMyTeam } from "../hooks/useMyTeam";
 import { fetchSchedule, getUniqueTeams } from "../services/scheduleService";
 import styles from "./MorePage.module.css";
@@ -33,10 +33,10 @@ export default function MorePage() {
       <h1 className={styles.title}>More</h1>
 
       <div className={styles.section}>
-        <div className={`${styles.link} ${styles.linkDisabled}`}>
+        <Link to="/sotg" className={styles.link}>
           <span>Spirit of the Game</span>
-          <span className={styles.arrow}>Coming soon</span>
-        </div>
+          <span className={styles.arrow}>→</span>
+        </Link>
       </div>
 
       <div className={styles.section}>

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import type { PoolStandings } from '../types/pool';
 import type { Match } from '../types/match';
 import { fetchPools } from '../services/poolsService';
-import { fetchSchedule } from '../services/scheduleService';
+import { fetchSchedule, getFlag } from '../services/scheduleService';
 import { useVisibilityRefresh } from '../hooks/useVisibilityRefresh';
 import { useMyTeam } from '../hooks/useMyTeam';
 import BracketView from '../components/bracket/BracketView';
@@ -154,7 +154,7 @@ export default function PoolsPage() {
                         key={j}
                         className={isHighlighted(team.TEAM) ? styles.highlighted : ''}
                       >
-                        <td className={styles.teamCell}>{team.TEAM}</td>
+                        <td className={styles.teamCell}>{getFlag(team.TEAM) && <span className={styles.flag}>{getFlag(team.TEAM)}</span>}{team.TEAM}</td>
                         <td className={styles.num}>{team.PT}</td>
                         <td className={styles.num}>{team.W}</td>
                         <td className={styles.num}>{team.L}</td>

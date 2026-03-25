@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { Match } from '../types/match';
-import { fetchSchedule } from '../services/scheduleService';
+import { fetchSchedule, getFlag } from '../services/scheduleService';
 import { getMatchStatus, getDayLabel, formatTime } from '../utils/time';
 import { useMyTeam } from '../hooks/useMyTeam';
 import DivisionBadge from '../components/common/DivisionBadge';
@@ -81,6 +81,7 @@ export default function MatchPage() {
         <div className={styles.matchup}>
           <div className={styles.teamCol}>
             <span className={`${styles.teamName} ${t1Wins ? styles.winner : ''} ${isFollowed(match.team1) ? styles.myTeam : ''}`}>
+              {getFlag(match.team1) && <span className={styles.flag}>{getFlag(match.team1)}</span>}
               {match.team1}
             </span>
             <button
@@ -107,6 +108,7 @@ export default function MatchPage() {
 
           <div className={styles.teamCol}>
             <span className={`${styles.teamName} ${t2Wins ? styles.winner : ''} ${isFollowed(match.team2) ? styles.myTeam : ''}`}>
+              {getFlag(match.team2) && <span className={styles.flag}>{getFlag(match.team2)}</span>}
               {match.team2}
             </span>
             <button

@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Match } from '../../types/match';
 import { getMatchDate, getMatchStatus, getRelativeTime, getDayLabel, formatTime, getMatchPerspective } from '../../utils/time';
+import { getFlag } from '../../services/scheduleService';
 import { useCountdown } from '../../hooks/useCountdown';
 import DivisionBadge from '../common/DivisionBadge';
 import styles from './NextGameHero.module.css';
@@ -71,7 +72,7 @@ function NextGameHero({ match, myTeam }: Props) {
 
       <div className={styles.opponent}>
         <span className={styles.vsLabel}>vs</span>
-        <span className={styles.opponentName}>{opponent}</span>
+        <span className={styles.opponentName}>{getFlag(opponent)} {opponent}</span>
       </div>
 
       <div className={styles.meta}>

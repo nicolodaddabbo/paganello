@@ -15,6 +15,8 @@ export default defineConfig({
         // Don't wait for old SW to stop — activate immediately
         skipWaiting: true,
         clientsClaim: true,
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api\//],
       },
       manifest: {
         name: 'Paganello 2026',

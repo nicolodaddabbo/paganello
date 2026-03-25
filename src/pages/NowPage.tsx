@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Match } from '../types/match';
-import { fetchSchedule } from '../services/scheduleService';
+import { fetchSchedule, getFlag } from '../services/scheduleService';
 import { getMatchStatus, getMatchDate, getRelativeTime, getDayLabel, formatTime } from '../utils/time';
 import { useVisibilityRefresh } from '../hooks/useVisibilityRefresh';
 import DivisionBadge from '../components/common/DivisionBadge';
@@ -77,11 +77,11 @@ export default function NowPage() {
                 </div>
                 <div className={styles.matchup}>
                   <div className={styles.team}>
-                    <span className={styles.teamName}>{match.team1}</span>
+                    <span className={styles.teamName}>{getFlag(match.team1)} {match.team1}</span>
                     <span className={styles.score}>{match.score1}</span>
                   </div>
                   <div className={styles.team}>
-                    <span className={styles.teamName}>{match.team2}</span>
+                    <span className={styles.teamName}>{getFlag(match.team2)} {match.team2}</span>
                     <span className={styles.score}>{match.score2}</span>
                   </div>
                 </div>
