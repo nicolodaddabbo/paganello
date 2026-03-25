@@ -100,7 +100,7 @@ function buildSchedule(
         const score1 = parseInt(data[row + 1]?.[col + 1]) || 0;
         const score2 = parseInt(data[row + 2]?.[col + 1]) || 0;
 
-        if (team1 && team2) {
+        if (team1 && team2 && matchType) {
           const timeSlot = formatTimeSlot(time);
           if (!result[day][timeSlot]) result[day][timeSlot] = [];
           result[day][timeSlot].push({
@@ -150,6 +150,7 @@ function buildPools(sheets: Map<string, string[][]>): Record<string, Pool[]> {
 
     const pools: Pool[] = [];
     let r = 0;
+    let lastFullHeaders: { colIndex: number; name: string }[] = [];
 
     while (r < data.length) {
       let poolName = "";
@@ -216,6 +217,16 @@ function buildPools(sheets: Map<string, string[][]>): Record<string, Pool[]> {
       if (teamColIdx < 0 || headerCols.length === 0) {
         r++;
         continue;
+      }
+
+      // If this pool only has a TEAM column, reuse headers from the previous pool
+      if (headerCols.length === 1 && headerCols[0].name === "TEAM" && lastFullHeaders.length > 0) {
+        headerCols = lastFullHeaders;
+      }
+
+      // Remember headers that have stats columns for subsequent pools
+      if (headerCols.length > 1) {
+        lastFullHeaders = headerCols;
       }
 
       // Extract team rows
