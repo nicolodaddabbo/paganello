@@ -3,7 +3,7 @@ import { fetchWithCache } from "../utils/cache";
 import { DAYS } from "../utils/time";
 
 const API_URL = "/api/schedule";
-const CACHE_DURATION = 30 * 60 * 1000;
+const CACHE_DURATION = 5 * 60 * 1000;
 
 export async function fetchSchedule(): Promise<Match[]> {
   const data = await fetchWithCache<RawScheduleData>(
