@@ -3,8 +3,6 @@ import { fetchWithCache } from "../utils/cache";
 import { DAYS } from "../utils/time";
 
 const API_URL = "/api/schedule";
-const FALLBACK_URL =
-  "https://script.googleusercontent.com/macros/echo?user_content_key=AY5xjrTW6rX1zzFe4P5-JajuVPCw9Cm_S_aTN53pCY5CDMiIrTvwa5rT4BizToJ2EYfP-Bgdtcd8qU8njoLb09y939BFJurflo5LybTdLHGpXOI_kuM_ZxoNh08eZcRl0iCItcUKuM91-r2ea45NROd4yBYSC-wSnOYQY_IMCQ8zXzYyn3f1LXtYOj_6-UzdzFrWLDgtd5p2BffsVKYcM0WN-b7gwokYJiLdFYV_SPiTmobUvkHSkSOxmR6f9riErWYeJNF7pm8ZEy-_Bn-sICbeJ0NOvuzxFqsKBlxDtwTJ7UY7reKb6Hnwdq7I63nBJA&lib=MEoXfsZS0V3rHY2Z_S8VN8jTDv19RCRyF";
 const CACHE_DURATION = 30 * 60 * 1000;
 
 export async function fetchSchedule(): Promise<Match[]> {
@@ -12,7 +10,6 @@ export async function fetchSchedule(): Promise<Match[]> {
     API_URL,
     "paganello-schedule",
     CACHE_DURATION,
-    FALLBACK_URL,
   );
   return transformScheduleData(data);
 }
