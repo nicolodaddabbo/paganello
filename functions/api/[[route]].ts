@@ -1,20 +1,316 @@
-const URLS: Record<string, string> = {
-  schedule:
-    "https://script.googleusercontent.com/macros/echo?user_content_key=AY5xjrTW6rX1zzFe4P5-JajuVPCw9Cm_S_aTN53pCY5CDMiIrTvwa5rT4BizToJ2EYfP-Bgdtcd8qU8njoLb09y939BFJurflo5LybTdLHGpXOI_kuM_ZxoNh08eZcRl0iCItcUKuM91-r2ea45NROd4yBYSC-wSnOYQY_IMCQ8zXzYyn3f1LXtYOj_6-UzdzFrWLDgtd5p2BffsVKYcM0WN-b7gwokYJiLdFYV_SPiTmobUvkHSkSOxmR6f9riErWYeJNF7pm8ZEy-_Bn-sICbeJ0NOvuzxFqsKBlxDtwTJ7UY7reKb6Hnwdq7I63nBJA&lib=MEoXfsZS0V3rHY2Z_S8VN8jTDv19RCRyF",
-  pools:
-    "https://script.googleusercontent.com/macros/echo?user_content_key=AY5xjrQdVQ0emQ4m2f7AU6s3fSWWZLoEPapOkuAPFkDA6flCwvAaUxQb_aSlAzwViPTK3jiY0irQqIzM78B-DVt50s5Mh0FUt66q1UxbX5t8hzrpU3S7X9ByUHlp_g0fwwI3bKoe_nlxxUfBNcGYOUgML2b6SGYq-EPCVNPyd96EPZQKJ2vFHkFuP7LKDqrU4FxtHMUDy7dUQkMQR9oYeMF8VVKOTjX-GThPDcm3eLV5u8O2dxIQ8XXJ2N4fvyo3SQEML5tbOEq1zOf9iv_OcPb_fZI0BiQvqxBf5aH6AkFhS-RlLFqC5zk&lib=MEoXfsZS0V3rHY2Z_S8VN8jTDv19RCRyF",
-};
+const SHEET_ID = "10lEld6Poa9UO2aJ740r4h2OPHJzlPES_Fb-PYzSEg5w";
+const CSV_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=`;
 
-// Cache for 1 hour, but refresh in background after 10 minutes
-const MAX_AGE = 3600;
-const STALE_AFTER = 600;
+const SCHEDULE_SHEETS = ["saturday", "sunday", "monday"] as const;
+const POOL_SHEETS = [
+  "Real Mixed Pools",
+  "Loose Mixed Pools",
+  "Open Pools",
+  "Women Pools",
+  "U20 Pools",
+  "U15 Pools",
+] as const;
 
-async function fetchUpstream(upstream: string): Promise<Response> {
-  const response = await fetch(upstream, {
-    headers: { Accept: "application/json" },
-  });
-  if (!response.ok) throw new Error("Upstream error");
-  return response;
+const MAX_AGE = 604800; // 1 week — stale-while-revalidate keeps it fresh
+const STALE_AFTER = 600; // 10 minutes
+
+// --- CSV Parser ---
+
+function parseCSV(text: string): string[][] {
+  const rows: string[][] = [];
+  let i = 0;
+  while (i < text.length) {
+    const row: string[] = [];
+    while (i < text.length) {
+      if (text[i] === '"') {
+        i++;
+        let val = "";
+        while (i < text.length) {
+          if (text[i] === '"') {
+            if (text[i + 1] === '"') {
+              val += '"';
+              i += 2;
+            } else {
+              i++;
+              break;
+            }
+          } else {
+            val += text[i++];
+          }
+        }
+        row.push(val);
+      } else {
+        let val = "";
+        while (i < text.length && text[i] !== "," && text[i] !== "\n" && text[i] !== "\r") {
+          val += text[i++];
+        }
+        row.push(val);
+      }
+      if (i < text.length && text[i] === ",") {
+        i++;
+      } else {
+        break;
+      }
+    }
+    if (text[i] === "\r") i++;
+    if (text[i] === "\n") i++;
+    rows.push(row);
+  }
+  return rows;
+}
+
+// --- Schedule Builder ---
+
+function formatTimeSlot(time: string): string {
+  const parts = time.split(":");
+  const hour = parts[0];
+  const minute = parts[1];
+  const endMinute = (parseInt(minute) + 45) % 60;
+  const endHour =
+    parseInt(minute) + 45 >= 60 ? parseInt(hour) + 1 : hour;
+  return `${hour}:${minute}-${endHour}:${endMinute < 10 ? "0" + endMinute : endMinute}`;
+}
+
+function buildSchedule(
+  sheets: Map<string, string[][]>,
+): Record<string, Record<string, object[]>> {
+  const result: Record<string, Record<string, object[]>> = {};
+
+  for (const day of SCHEDULE_SHEETS) {
+    const data = sheets.get(day);
+    if (!data || data.length < 3) {
+      result[day] = {};
+      continue;
+    }
+
+    result[day] = {};
+    const headerRow = 1; // Field names row
+
+    for (let col = 1; col < (data[headerRow]?.length ?? 0); col += 2) {
+      const fieldName = (data[headerRow][col] || "").trim();
+      if (!fieldName || fieldName === "TIME") continue;
+
+      for (let row = 2; row < data.length; row += 3) {
+        const time = (data[row]?.[0] || "").trim();
+        if (!time) continue;
+
+        const matchType = (data[row]?.[col] || "").trim();
+        const team1 = (data[row + 1]?.[col] || "").trim();
+        const team2 = (data[row + 2]?.[col] || "").trim();
+        const score1 = parseInt(data[row + 1]?.[col + 1]) || 0;
+        const score2 = parseInt(data[row + 2]?.[col + 1]) || 0;
+
+        if (team1 && team2) {
+          const timeSlot = formatTimeSlot(time);
+          if (!result[day][timeSlot]) result[day][timeSlot] = [];
+          result[day][timeSlot].push({
+            field: fieldName,
+            matchType,
+            team1,
+            team2,
+            score1,
+            score2,
+          });
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+// --- Pools Builder ---
+
+interface PoolTeam {
+  TEAM: string;
+  PT: number;
+  W: number;
+  L: number;
+  P: number;
+  GS: number;
+  GA: number;
+  GD: number;
+}
+
+interface Pool {
+  poolName: string;
+  teams: PoolTeam[];
+  standings: Record<string, string>[];
+}
+
+function buildPools(sheets: Map<string, string[][]>): Record<string, Pool[]> {
+  const result: Record<string, Pool[]> = {};
+
+  for (const sheetName of POOL_SHEETS) {
+    const data = sheets.get(sheetName);
+    if (!data) {
+      result[sheetName] = [];
+      continue;
+    }
+
+    const pools: Pool[] = [];
+    let r = 0;
+
+    while (r < data.length) {
+      let poolName = "";
+
+      // Detect pool name: "POOL X" in col 1, or extract from combined header like "REAL MIXED 1-48 POOL A TEAM"
+      const col1 = (data[r][1] || "").trim();
+      const col1Upper = col1.toUpperCase();
+
+      if (col1Upper.startsWith("POOL ")) {
+        poolName = col1;
+      } else {
+        const poolMatch = col1.match(/\b(POOL\s+[A-Z]{1,2})\b/i);
+        if (poolMatch) {
+          poolName = poolMatch[1].toUpperCase();
+        }
+      }
+
+      if (!poolName) {
+        r++;
+        continue;
+      }
+
+      // Find TEAM header row (current row or next few rows)
+      let teamColIdx = -1;
+      let headerCols: { colIndex: number; name: string }[] = [];
+      let headerRowIdx = r;
+
+      // Check if current row already contains the TEAM header (combined row)
+      const currentRowHasTeam = col1Upper.includes("TEAM");
+
+      if (currentRowHasTeam) {
+        // Combined header: pool name + column headers in the same row
+        // Find where TEAM label is — it's part of the col1 string, but actual team data starts in col 1
+        // Stats columns start from col 3 (PT, W, L, P, GS, GA, GD)
+        teamColIdx = 1;
+        for (let c = 1; c < data[r].length; c++) {
+          const h = (data[r][c] || "").trim();
+          if (h && !h.includes("POOL") && h !== "TEAM") {
+            headerCols.push({ colIndex: c, name: h });
+          }
+        }
+        // Add TEAM as the first column
+        headerCols.unshift({ colIndex: 1, name: "TEAM" });
+        headerRowIdx = r;
+      } else {
+        // Look for separate TEAM header in next rows
+        for (let scan = r + 1; scan < data.length && scan <= r + 3; scan++) {
+          for (let c = 1; c <= 5 && c < (data[scan]?.length ?? 0); c++) {
+            if ((data[scan][c] || "").trim().toUpperCase() === "TEAM") {
+              teamColIdx = c;
+              headerRowIdx = scan;
+              // Scan for all header columns
+              for (let hc = c; hc < (data[scan]?.length ?? 0) && hc <= c + 15; hc++) {
+                const h = (data[scan][hc] || "").trim();
+                if (h) headerCols.push({ colIndex: hc, name: h });
+              }
+              break;
+            }
+          }
+          if (teamColIdx >= 0) break;
+        }
+      }
+
+      if (teamColIdx < 0 || headerCols.length === 0) {
+        r++;
+        continue;
+      }
+
+      // Extract team rows
+      const teams: PoolTeam[] = [];
+      let teamRowIdx = headerRowIdx + 1;
+
+      while (teamRowIdx < data.length) {
+        const teamCell = (data[teamRowIdx]?.[teamColIdx] || "").trim();
+        const prevCell = teamColIdx > 0 ? (data[teamRowIdx]?.[teamColIdx - 1] || "").trim().toUpperCase() : "";
+
+        if (
+          (!teamCell && !prevCell) ||
+          teamCell.toUpperCase() === "RANKING" || prevCell === "RANKING" ||
+          teamCell.toUpperCase() === "POS" || prevCell === "POS" ||
+          teamCell.toUpperCase().startsWith("POOL ") || prevCell.startsWith("POOL ")
+        ) break;
+
+        const team: Record<string, string | number> = {};
+        let hasData = false;
+        for (const h of headerCols) {
+          let val: string | number = (data[teamRowIdx]?.[h.colIndex] || "").trim();
+          if (h.name === "TEAM") {
+            team[h.name] = val;
+          } else {
+            team[h.name] = parseInt(val as string) || 0;
+          }
+          if (val !== "") hasData = true;
+        }
+
+        if (hasData && team.TEAM) {
+          teams.push(team as unknown as PoolTeam);
+        }
+        teamRowIdx++;
+      }
+
+      // Extract standings (POS section)
+      const standings: Record<string, string> = {};
+      let posRowIdx = teamRowIdx;
+      let posColIdx = 1;
+      let foundPos = false;
+
+      for (let scan = posRowIdx; scan < data.length && scan <= teamRowIdx + 5; scan++) {
+        for (let c = 1; c <= 5 && c < (data[scan]?.length ?? 0); c++) {
+          if ((data[scan][c] || "").trim().toUpperCase() === "POS") {
+            foundPos = true;
+            posColIdx = c;
+            posRowIdx = scan + 1;
+            break;
+          }
+        }
+        if (foundPos) break;
+      }
+
+      if (foundPos) {
+        while (posRowIdx < data.length) {
+          const posVal = (data[posRowIdx]?.[posColIdx] || "").trim();
+          const teamVal = (data[posRowIdx]?.[posColIdx + 1] || "").trim();
+
+          if (
+            !posVal ||
+            posVal.toUpperCase().startsWith("POOL ") ||
+            teamVal.toUpperCase().startsWith("POOL ") ||
+            posVal.toUpperCase() === "RANKING" ||
+            posVal.toUpperCase() === "TEAM" ||
+            !/^\d+$/.test(posVal)
+          ) break;
+
+          standings[posVal] = teamVal;
+          posRowIdx++;
+        }
+        r = posRowIdx;
+      } else {
+        r = teamRowIdx;
+      }
+
+      pools.push({
+        poolName: poolName.replace(/^POOL\s+/i, "POOL "),
+        teams,
+        standings: Object.keys(standings).length > 0 ? [standings] : [],
+      });
+    }
+
+    result[sheetName] = pools;
+  }
+
+  return result;
+}
+
+// --- Fetch & Cache ---
+
+async function fetchCSV(sheetName: string): Promise<string> {
+  const url = CSV_BASE + encodeURIComponent(sheetName);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch ${sheetName}: ${res.status}`);
+  return res.text();
 }
 
 function buildResponse(data: string): Response {
@@ -27,13 +323,40 @@ function buildResponse(data: string): Response {
   });
 }
 
+async function fetchScheduleData(): Promise<string> {
+  const csvResults = await Promise.all(
+    SCHEDULE_SHEETS.map(async (day) => {
+      const csv = await fetchCSV(day);
+      return [day, parseCSV(csv)] as const;
+    }),
+  );
+  const sheets = new Map(csvResults);
+  return JSON.stringify(buildSchedule(sheets));
+}
+
+async function fetchPoolsData(): Promise<string> {
+  const csvResults = await Promise.all(
+    POOL_SHEETS.map(async (name) => {
+      const csv = await fetchCSV(name);
+      return [name, parseCSV(csv)] as const;
+    }),
+  );
+  const sheets = new Map(csvResults);
+  return JSON.stringify(buildPools(sheets));
+}
+
+const FETCHERS: Record<string, () => Promise<string>> = {
+  schedule: fetchScheduleData,
+  pools: fetchPoolsData,
+};
+
 export const onRequest: PagesFunction = async (context) => {
   const { request } = context;
   const url = new URL(request.url);
   const route = url.pathname.replace("/api/", "");
-  const upstream = URLS[route];
+  const fetcher = FETCHERS[route];
 
-  if (!upstream) {
+  if (!fetcher) {
     return new Response("Not found", { status: 404 });
   }
 
@@ -42,13 +365,11 @@ export const onRequest: PagesFunction = async (context) => {
   const cached = await cache.match(cacheKey);
 
   if (cached) {
-    // Check if stale — if so, refresh in background but serve immediately
     const cachedAt = Number(cached.headers.get("X-Cached-At") || 0);
     if (Date.now() - cachedAt > STALE_AFTER * 1000) {
       context.waitUntil(
-        fetchUpstream(upstream)
-          .then(async (res) => {
-            const data = await res.text();
+        fetcher()
+          .then(async (data) => {
             await cache.put(cacheKey, buildResponse(data));
           })
           .catch(() => {}),
@@ -57,10 +378,8 @@ export const onRequest: PagesFunction = async (context) => {
     return cached;
   }
 
-  // Cold cache — must wait (only happens once ever)
   try {
-    const res = await fetchUpstream(upstream);
-    const data = await res.text();
+    const data = await fetcher();
     const result = buildResponse(data);
     await cache.put(cacheKey, result.clone());
     return result;
