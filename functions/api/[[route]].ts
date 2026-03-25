@@ -11,8 +11,8 @@ const POOL_SHEETS = [
   "U15 Pools",
 ] as const;
 
-const MAX_AGE = 604800; // 1 week — stale-while-revalidate keeps it fresh
-const STALE_AFTER = 600; // 10 minutes
+const MAX_AGE = 900; // 15 minutes — hard expiry
+const STALE_AFTER = 180; // 3 minutes — background refresh
 
 // --- CSV Parser ---
 
@@ -78,22 +78,110 @@ function buildSchedule(
 
   for (const day of SCHEDULE_SHEETS) {
     const data = sheets.get(day);
-    if (!data || data.length < 3) {
+    if (!data || data.length < 2) {
       result[day] = {};
       continue;
     }
 
     result[day] = {};
-    const headerRow = 1; // Field names row
 
-    for (let col = 1; col < (data[headerRow]?.length ?? 0); col += 2) {
-      const fieldName = (data[headerRow][col] || "").trim();
-      if (!fieldName || fieldName === "TIME") continue;
+    // Find the header row: contains "TIME" in col 0 or field names in col 1+
+    // Also find where match data starts (first row with a time pattern in col 0)
+    let headerRow = -1;
+    let dataStart = -1;
 
-      for (let row = 2; row < data.length; row += 3) {
-        const time = (data[row]?.[0] || "").trim();
-        if (!time) continue;
+    for (let r = 0; r < Math.min(data.length, 5); r++) {
+      const col0 = (data[r][0] || "").trim();
+      const col0Upper = col0.toUpperCase();
 
+      // Check if this row contains a time pattern (HH:MM - HH:MM)
+      const hasTime = /\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}/.test(col0);
+
+      if (hasTime && (col0Upper.includes("TIME") || col0Upper.includes("SCHEDULE"))) {
+        // Merged header + first time slot in one row
+        headerRow = r;
+        dataStart = r;
+        break;
+      } else if (col0Upper === "TIME" || col0Upper.includes("TIME")) {
+        headerRow = r;
+        continue;
+      } else if (/^\d{1,2}:\d{2}/.test(col0)) {
+        if (dataStart < 0) dataStart = r;
+        break;
+      }
+    }
+
+    if (headerRow < 0) headerRow = 1;
+    if (dataStart < 0) dataStart = headerRow + 1;
+
+    // Extract field names from the header/first-data row
+    // Field names are at odd columns (1, 3, 5, ...)
+    const fieldNames: Map<number, string> = new Map();
+
+    if (headerRow === dataStart) {
+      // Merged: field name + match type combined, e.g. "Field 1 RM POOL D (1-48)"
+      // Extract just the field name part (before the division code)
+      for (let col = 1; col < (data[headerRow]?.length ?? 0); col += 2) {
+        const cell = (data[headerRow][col] || "").trim();
+        if (!cell) continue;
+        // Field name is everything before the match type (e.g. "RM POOL D (1-48)")
+        const fieldMatch = cell.match(/^(.+?)\s+(?:RM|LM|O|W|U15|U20)\s+(?:POOL|PQ|Q|S|F|R)/i);
+        if (fieldMatch) {
+          fieldNames.set(col, fieldMatch[1].trim());
+        }
+      }
+    } else {
+      for (let col = 1; col < (data[headerRow]?.length ?? 0); col += 2) {
+        const name = (data[headerRow][col] || "").trim();
+        if (name && name !== "TIME") fieldNames.set(col, name);
+      }
+    }
+
+    // Parse match data in groups of 3 rows (time+matchType, team1+score1, team2+score2)
+    // But if header is merged with first data row, first group starts at row 0
+    let row = dataStart;
+
+    // If merged, the first time slot's matchType is embedded in the header cells
+    if (headerRow === dataStart) {
+      const col0 = (data[0][0] || "").trim();
+      const timeMatch = col0.match(/(\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2})/);
+      if (timeMatch && data.length > 2) {
+        const time = timeMatch[1];
+        const timeSlot = formatTimeSlot(time);
+
+        for (const [col, fieldName] of fieldNames) {
+          const cell = (data[0][col] || "").trim();
+          // Extract matchType: everything after the field name
+          const matchType = cell.replace(fieldName, "").trim();
+          const team1 = (data[1]?.[col] || "").trim();
+          const team2 = (data[2]?.[col] || "").trim();
+          const score1 = parseInt(data[1]?.[col + 1]) || 0;
+          const score2 = parseInt(data[2]?.[col + 1]) || 0;
+
+          if (team1 && team2 && matchType) {
+            if (!result[day][timeSlot]) result[day][timeSlot] = [];
+            result[day][timeSlot].push({
+              field: fieldName,
+              matchType,
+              team1,
+              team2,
+              score1,
+              score2,
+            });
+          }
+        }
+        row = 3; // Skip to next time slot
+      }
+    }
+
+    // Parse remaining time slots normally
+    for (; row < data.length; row += 3) {
+      const time = (data[row]?.[0] || "").trim();
+      if (!time || !/^\d{1,2}:\d{2}/.test(time)) continue;
+
+      const timeSlot = formatTimeSlot(time);
+
+      for (const [col, fieldName] of fieldNames) {
         const matchType = (data[row]?.[col] || "").trim();
         const team1 = (data[row + 1]?.[col] || "").trim();
         const team2 = (data[row + 2]?.[col] || "").trim();
@@ -101,7 +189,6 @@ function buildSchedule(
         const score2 = parseInt(data[row + 2]?.[col + 1]) || 0;
 
         if (team1 && team2 && matchType) {
-          const timeSlot = formatTimeSlot(time);
           if (!result[day][timeSlot]) result[day][timeSlot] = [];
           result[day][timeSlot].push({
             field: fieldName,
