@@ -148,20 +148,20 @@ export default function MorePage() {
           <span>Instagram</span>
           <span className={styles.arrow}>↗</span>
         </a>
-        {/* <p className={styles.madeBy}> */}
-        {/*   Made by{" "} */}
-        {/*   <a href="https://parsam.io" target="_blank" rel="noopener noreferrer"> */}
-        {/*     Parsa */}
-        {/*   </a> */}
-        {/*   {" & "} */}
-        {/*   <a */}
-        {/*     href="https://nicolod.com" */}
-        {/*     target="_blank" */}
-        {/*     rel="noopener noreferrer" */}
-        {/*   > */}
-        {/*     Nicolo */}
-        {/*   </a> */}
-        {/* </p> */}
+        <p className={styles.madeBy}>
+          Made by{" "}
+          <a href="https://parsam.io" target="_blank" rel="noopener noreferrer">
+            Parsa
+          </a>
+          {" & "}
+          <a
+            href="https://nicolod.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Nicolò
+          </a>
+        </p>
       </div>
     </div>
   );
