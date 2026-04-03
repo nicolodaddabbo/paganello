@@ -5,6 +5,7 @@ import { fetchPools } from '../services/poolsService';
 import { fetchSchedule, getFlag } from '../services/scheduleService';
 import { useVisibilityRefresh } from '../hooks/useVisibilityRefresh';
 import { useMyTeam } from '../hooks/useMyTeam';
+import { isKnockout } from '../utils/match';
 import BracketView from '../components/bracket/BracketView';
 import styles from './PoolsPage.module.css';
 
@@ -29,9 +30,6 @@ function isCrossoverPool(poolName: string): boolean {
   return /^POOL [ULM][A-Z]$/i.test(poolName.trim());
 }
 
-function isKnockoutMatch(matchType: string): boolean {
-  return /\b(PQ|Q|S|F|R)\d+\b/.test(matchType);
-}
 
 export default function PoolsPage() {
   const [poolStandings, setPoolStandings] = useState<PoolStandings[]>([]);
@@ -71,7 +69,7 @@ export default function PoolsPage() {
   const divisionCode = DIVISION_TO_CODE[selectedDivision] || '';
 
   const knockoutMatches = useMemo(
-    () => matches.filter(m => m.division === divisionCode && isKnockoutMatch(m.matchType)),
+    () => matches.filter(m => m.division === divisionCode && isKnockout(m.matchType)),
     [matches, divisionCode]
   );
 

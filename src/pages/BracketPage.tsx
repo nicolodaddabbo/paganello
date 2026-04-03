@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMyTeam } from '../hooks/useMyTeam';
-import { fetchSchedule, getUniqueTeams, getFlag } from '../services/scheduleService';
+import { fetchSchedule, getUniqueTeams, getFlag, onScheduleUpdate } from '../services/scheduleService';
 import { fetchPools } from '../services/poolsService';
 import type { Match } from '../types/match';
 import type { PoolStandings } from '../types/pool';
@@ -194,11 +194,11 @@ export default function BracketPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    fetchSchedule().then(data => {
-      setMatches(data);
-      setTeams(getUniqueTeams(data));
-    }).catch(() => {});
+    const update = (data: Match[]) => { setMatches(data); setTeams(getUniqueTeams(data)); };
+    fetchSchedule().then(update).catch(() => {});
+    const unsub = onScheduleUpdate(update);
     fetchPools().then(setPools).catch(() => {});
+    return unsub;
   }, []);
 
   const resMap = useMemo(() => buildResolutionMap(pools, matches), [pools, matches]);

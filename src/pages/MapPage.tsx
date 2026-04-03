@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { fetchSchedule, getFlag } from '../services/scheduleService';
+import { fetchSchedule, getFlag, onScheduleUpdate } from '../services/scheduleService';
 import { getTodayString, formatTime } from '../utils/time';
 import type { Match } from '../types/match';
 import styles from './MapPage.module.css';
@@ -52,14 +52,28 @@ function findSlot(matches: Match[], day: string): string | null {
 
 export default function MapPage() {
   const [matches, setMatches] = useState<Match[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [params] = useSearchParams();
-  const highlight = params.get('field');
-  const timeParam = params.get('time');
+  const [, setParams] = useSearchParams();
+  // Read URL params once at mount
+  const initParams = useRef(new URLSearchParams(window.location.search));
+  const initField = useRef(initParams.current.get('field'));
+  const initTime = useRef(initParams.current.get('time'));
+  const [selected, setSelected] = useState<string | null>(
+    initField.current ? norm(initField.current) : null
+  );
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(initTime.current);
   const fieldRefs = useRef<Map<string, SVGGElement>>(new Map());
 
-  useEffect(() => { fetchSchedule().then(setMatches).catch(() => {}); }, []);
+  // Clear URL params immediately so they don't interfere with user interaction
+  useEffect(() => {
+    if (initField.current || initTime.current) {
+      setParams({}, { replace: true });
+    }
+  }, [setParams]);
+
+  useEffect(() => {
+    fetchSchedule().then(setMatches).catch(() => {});
+    return onScheduleUpdate(setMatches);
+  }, []);
 
   const today = getTodayString();
   const autoSlot = useMemo(() => findSlot(matches, today), [matches, today]);
@@ -71,23 +85,19 @@ export default function MapPage() {
     return Array.from(set).sort();
   }, [matches, today]);
 
-  // Set slot from URL param or auto-detect
+  // Auto-select current slot if none from URL
   useEffect(() => {
-    if (timeParam && timeSlots.includes(timeParam)) {
-      setSelectedSlot(timeParam);
-    } else if (!selectedSlot && autoSlot) {
-      setSelectedSlot(autoSlot);
-    }
-  }, [timeParam, autoSlot, selectedSlot, timeSlots]);
+    if (!selectedSlot && autoSlot) setSelectedSlot(autoSlot);
+  }, [autoSlot, selectedSlot]);
 
-  // Scroll to highlighted field
+  // Scroll to highlighted field once data loads
   useEffect(() => {
-    if (!highlight || !matches.length) return;
-    const id = norm(highlight);
-    setSelected(id);
+    if (!initField.current || !matches.length) return;
+    const id = norm(initField.current);
     const el = fieldRefs.current.get(id);
-    if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-  }, [highlight, matches, slot]);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    initField.current = null;
+  }, [matches]);
 
   const fm = useMemo(() => {
     const map = new Map<string, Match[]>();
