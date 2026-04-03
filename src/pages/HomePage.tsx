@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Match, Filters } from '../types/match';
-import { fetchSchedule, getUniqueTeams, getUniqueFields, onScheduleUpdate } from '../services/scheduleService';
+import { fetchSchedule, getUniqueTeams, getUniqueFields, getFlags, onScheduleUpdate } from '../services/scheduleService';
 import { filterMatches, getDefaultFilters } from '../utils/filters';
 import { getNextMatch, getTeamMatches, getTodayString, getDayLabel, formatTime, DAYS } from '../utils/time';
 import { useLocalStorage } from '../utils/localStorage';
@@ -17,8 +17,8 @@ import styles from './HomePage.module.css';
 
 const FABER_TRIGGER = '7 cloni di faber';
 
-const INITIAL_SHOW = 30;
-const LOAD_MORE = 30;
+const INITIAL_SHOW = 75;
+const LOAD_MORE = 75;
 
 export default function HomePage() {
   const { myTeam, setMyTeam, hasChosenMode, dismissPrompt, allFollowed, isFollowed } = useMyTeam();
@@ -50,6 +50,11 @@ export default function HomePage() {
   const teamMatches = useMemo(() => myTeam ? getTeamMatches(matches, myTeam) : [], [matches, myTeam]);
 
   const availableFields = useMemo(() => getUniqueFields(matches), [matches]);
+  const availableCountries = useMemo(() => {
+    const flags = getFlags();
+    const unique = new Set(Object.values(flags).filter(Boolean));
+    return Array.from(unique).sort();
+  }, [matches]);
 
   const baseFiltered = useMemo(() => {
     return filterMatches(matches, filters, allFollowed, showMyGamesOnly);
@@ -150,6 +155,7 @@ export default function HomePage() {
             showFilters={showFilters}
             setShowFilters={setShowFilters}
             availableFields={availableFields}
+            availableCountries={availableCountries}
             myTeamsOnly={showMyGamesOnly}
             setMyTeamsOnly={setShowMyGamesOnly}
             hasFollowed={allFollowed.length > 0}

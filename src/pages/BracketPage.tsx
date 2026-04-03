@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useMyTeam } from '../hooks/useMyTeam';
 import { fetchSchedule, getUniqueTeams, getFlag, onScheduleUpdate } from '../services/scheduleService';
 import { fetchPools } from '../services/poolsService';
@@ -187,10 +188,12 @@ function findUpperPoolPath(teamName: string, pools: PoolStandings[]): string[] {
 
 export default function BracketPage() {
   const { myTeam } = useMyTeam();
+  const [params] = useSearchParams();
+  const teamParam = params.get('team');
   const [matches, setMatches] = useState<Match[]>([]);
   const [pools, setPools] = useState<PoolStandings[]>([]);
   const [teams, setTeams] = useState<string[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<string>(myTeam || '');
+  const [selectedTeam, setSelectedTeam] = useState<string>(teamParam || myTeam || '');
   const [search, setSearch] = useState('');
 
   useEffect(() => {

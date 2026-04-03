@@ -118,10 +118,10 @@ export default function MatchPage() {
         {/* Score / VS */}
         <div className={styles.matchup}>
           <div className={styles.teamCol}>
-            <span className={`${styles.teamName} ${t1Wins ? styles.winner : ''} ${isFollowed(match.team1) ? styles.myTeam : ''}`}>
+            <Link to={`/team/${encodeURIComponent(match.team1)}`} className={`${styles.teamName} ${t1Wins ? styles.winner : ''} ${isFollowed(match.team1) ? styles.myTeam : ''}`}>
               {getFlag(match.team1) && <span className={styles.flag}>{getFlag(match.team1)}</span>}
               {match.team1}
-            </span>
+            </Link>
             <button
               className={`${styles.followBtn} ${isFollowed(match.team1) ? styles.following : ''}`}
               onClick={() => !myTeam ? setMyTeam(match.team1) : toggleFollow(match.team1)}
@@ -145,10 +145,10 @@ export default function MatchPage() {
           </div>
 
           <div className={styles.teamCol}>
-            <span className={`${styles.teamName} ${t2Wins ? styles.winner : ''} ${isFollowed(match.team2) ? styles.myTeam : ''}`}>
+            <Link to={`/team/${encodeURIComponent(match.team2)}`} className={`${styles.teamName} ${t2Wins ? styles.winner : ''} ${isFollowed(match.team2) ? styles.myTeam : ''}`}>
               {getFlag(match.team2) && <span className={styles.flag}>{getFlag(match.team2)}</span>}
               {match.team2}
-            </span>
+            </Link>
             <button
               className={`${styles.followBtn} ${isFollowed(match.team2) ? styles.following : ''}`}
               onClick={() => !myTeam ? setMyTeam(match.team2) : toggleFollow(match.team2)}

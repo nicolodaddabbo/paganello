@@ -9,6 +9,7 @@ interface Props {
   showFilters: boolean;
   setShowFilters: (show: boolean) => void;
   availableFields: string[];
+  availableCountries: string[];
   myTeamsOnly?: boolean;
   setMyTeamsOnly?: (v: boolean) => void;
   hasFollowed?: boolean;
@@ -18,6 +19,7 @@ export default function FilterBar({
   filters, updateFilter, clearFilters,
   showFilters, setShowFilters,
   availableFields,
+  availableCountries,
   myTeamsOnly = false,
   setMyTeamsOnly,
   hasFollowed = false,
@@ -65,6 +67,10 @@ export default function FilterBar({
               </select>
               <select value={filters.field} onChange={e => updateFilter('field', e.target.value)}>
                 {availableFields.map(f => <option key={f} value={f}>{f === 'all' ? 'All Fields' : f}</option>)}
+              </select>
+              <select value={filters.country} onChange={e => updateFilter('country', e.target.value)}>
+                <option value="all">All Countries</option>
+                {availableCountries.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
               <select value={filters.status} onChange={e => updateFilter('status', e.target.value as StatusFilter)}>
                 <option value="all">All Status</option>

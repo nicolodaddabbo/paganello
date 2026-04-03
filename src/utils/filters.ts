@@ -1,4 +1,5 @@
 import type { Match, Filters } from '../types/match';
+import { getFlag } from '../services/scheduleService';
 
 export function filterMatches(
   matches: Match[],
@@ -47,6 +48,15 @@ export function filterMatches(
       }
     }
 
+    // Country filter
+    if (filters.country !== 'all') {
+      const t1Flag = getFlag(match.team1);
+      const t2Flag = getFlag(match.team2);
+      if (t1Flag !== filters.country && t2Flag !== filters.country) {
+        return false;
+      }
+    }
+
     // Favorites filter
     if (showFavoritesOnly) {
       if (!favoriteTeams.includes(match.team1) && !favoriteTeams.includes(match.team2)) {
@@ -66,6 +76,7 @@ export function getActiveFilterCount(filters: Filters): number {
   if (filters.division !== 'all') count++;
   if (filters.time !== 'all') count++;
   if (filters.status !== 'all') count++;
+  if (filters.country !== 'all') count++;
   return count;
 }
 
@@ -77,5 +88,6 @@ export function getDefaultFilters(): Filters {
     division: 'all',
     time: 'all',
     status: 'all',
+    country: 'all',
   };
 }

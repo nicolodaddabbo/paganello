@@ -47,4 +47,5 @@ export interface Filters {
   division: DivisionFilter;
   time: string;
   status: StatusFilter;
+  country: string;
 }
