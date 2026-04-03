@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Match, Filters } from '../types/match';
-import { fetchSchedule, getUniqueTeams, getUniqueFields, getFlags, onScheduleUpdate } from '../services/scheduleService';
+import { fetchSchedule, getUniqueTeams, getFlags, onScheduleUpdate } from '../services/scheduleService';
 import { filterMatches, getDefaultFilters } from '../utils/filters';
 import { getNextMatch, getTeamMatches, getTodayString, getDayLabel, formatTime, DAYS } from '../utils/time';
 import { useLocalStorage } from '../utils/localStorage';
@@ -49,7 +49,6 @@ export default function HomePage() {
   const nextMatch = useMemo(() => myTeam ? getNextMatch(matches, myTeam) : null, [matches, myTeam]);
   const teamMatches = useMemo(() => myTeam ? getTeamMatches(matches, myTeam) : [], [matches, myTeam]);
 
-  const availableFields = useMemo(() => getUniqueFields(matches), [matches]);
   const availableCountries = useMemo(() => {
     const flags = getFlags();
     const unique = new Set(Object.values(flags).filter(Boolean));
@@ -154,7 +153,6 @@ export default function HomePage() {
             clearFilters={clearFilters}
             showFilters={showFilters}
             setShowFilters={setShowFilters}
-            availableFields={availableFields}
             availableCountries={availableCountries}
             myTeamsOnly={showMyGamesOnly}
             setMyTeamsOnly={setShowMyGamesOnly}

@@ -1,4 +1,4 @@
-import type { Filters, DivisionFilter, StatusFilter } from '../../types/match';
+import type { Filters, DivisionFilter } from '../../types/match';
 import { getActiveFilterCount } from '../../utils/filters';
 import styles from './FilterBar.module.css';
 
@@ -8,7 +8,6 @@ interface Props {
   clearFilters: () => void;
   showFilters: boolean;
   setShowFilters: (show: boolean) => void;
-  availableFields: string[];
   availableCountries: string[];
   myTeamsOnly?: boolean;
   setMyTeamsOnly?: (v: boolean) => void;
@@ -18,7 +17,6 @@ interface Props {
 export default function FilterBar({
   filters, updateFilter, clearFilters,
   showFilters, setShowFilters,
-  availableFields,
   availableCountries,
   myTeamsOnly = false,
   setMyTeamsOnly,
@@ -65,17 +63,9 @@ export default function FilterBar({
                 <option value="U20">U20</option>
                 <option value="U15">U15</option>
               </select>
-              <select value={filters.field} onChange={e => updateFilter('field', e.target.value)}>
-                {availableFields.map(f => <option key={f} value={f}>{f === 'all' ? 'All Fields' : f}</option>)}
-              </select>
               <select value={filters.country} onChange={e => updateFilter('country', e.target.value)}>
                 <option value="all">All Countries</option>
                 {availableCountries.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <select value={filters.status} onChange={e => updateFilter('status', e.target.value as StatusFilter)}>
-                <option value="all">All Status</option>
-                <option value="played">Played</option>
-                <option value="upcoming">Upcoming</option>
               </select>
               {activeCount > 0 && (
                 <button onClick={() => { clearFilters(); setMyTeamsOnly?.(false); }} className={styles.clearBtn}>
