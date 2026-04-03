@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import type { PoolStandings } from '../types/pool';
 import type { Match } from '../types/match';
 import { fetchPools } from '../services/poolsService';
@@ -152,7 +153,7 @@ export default function PoolsPage() {
                         key={j}
                         className={isHighlighted(team.TEAM) ? styles.highlighted : ''}
                       >
-                        <td className={styles.teamCell}>{getFlag(team.TEAM) && <span className={styles.flag}>{getFlag(team.TEAM)}</span>}{team.TEAM}</td>
+                        <td className={styles.teamCell}><Link to={`/team/${encodeURIComponent(team.TEAM)}`} className={styles.teamLink}>{getFlag(team.TEAM) && <span className={styles.flag}>{getFlag(team.TEAM)}</span>}{team.TEAM}</Link></td>
                         <td className={styles.num}>{team.PT}</td>
                         <td className={styles.num}>{team.W}</td>
                         <td className={styles.num}>{team.L}</td>

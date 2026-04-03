@@ -144,6 +144,11 @@
   white-space: nowrap;
 }
 
+.teamLink {
+  color: var(--primary);
+  text-decoration: none;
+}
+
 .num {
   text-align: right;
   font-variant-numeric: tabular-nums;
