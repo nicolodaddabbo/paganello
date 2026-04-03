@@ -129,7 +129,7 @@ export default function MorePage() {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>About</h2>
         <p className={styles.about}>
-          Paganello 2026 — XXXIV Edition
+          Paganello 2026 — XXXV Edition
           <br />
           April 3–6, Rimini Beach, Italy
         </p>

@@ -164,13 +164,13 @@
 }
 
 .fieldLink {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--primary);
   font-weight: 600;
   text-decoration: none;
-  padding: 4px 0;
+  padding: 6px 0;
   display: inline-block;
-  min-height: 28px;
+  min-height: 32px;
   line-height: 20px;
 }
 
