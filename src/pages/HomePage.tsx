@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Match, Filters } from '../types/match';
-import { fetchSchedule, getUniqueTeams, getUniqueFields } from '../services/scheduleService';
+import { fetchSchedule, getUniqueTeams, getUniqueFields, onScheduleUpdate } from '../services/scheduleService';
 import { filterMatches, getDefaultFilters } from '../utils/filters';
 import { getNextMatch, getTeamMatches, getTodayString, getDayLabel, formatTime, DAYS } from '../utils/time';
 import { useLocalStorage } from '../utils/localStorage';
@@ -12,6 +12,7 @@ import TeamPrompt from '../components/home/TeamPrompt';
 import FaberEasterEgg from '../components/home/FaberEasterEgg';
 import FilterBar from '../components/schedule/FilterBar';
 import MatchCard from '../components/schedule/MatchCard';
+import { Link } from 'react-router-dom';
 import styles from './HomePage.module.css';
 
 const FABER_TRIGGER = '7 cloni di faber';
@@ -41,6 +42,7 @@ export default function HomePage() {
       })
       .catch(() => { })
       .finally(() => setLoading(false));
+    return onScheduleUpdate(setMatches);
   }, [refreshKey]);
 
   const teams = useMemo(() => getUniqueTeams(matches), [matches]);
@@ -117,6 +119,7 @@ export default function HomePage() {
       <div className={styles.scheduleSection}>
         <div className={styles.header}>
           <h2 className={styles.title}>{myTeam ? 'All Matches' : 'Schedule'}</h2>
+          <Link to="/map" className={styles.mapBtn}>Map</Link>
         </div>
 
         {/* Day tabs */}

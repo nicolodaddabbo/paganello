@@ -1,9 +1,10 @@
 import type { RawScheduleData, Match, FlagMap } from "../types/match";
-import { fetchWithCache } from "../utils/cache";
+import { fetchWithCache, onCacheUpdate } from "../utils/cache";
 import { DAYS } from "../utils/time";
+import { isPlaceholder } from "../utils/match";
 
 const API_URL = "/api/schedule";
-const CACHE_DURATION = 5 * 60 * 1000;
+const CACHE_DURATION = 60 * 1000; // 1 minute
 
 let cachedFlags: FlagMap = {};
 
@@ -15,6 +16,13 @@ export async function fetchSchedule(): Promise<Match[]> {
   );
   if (data.flags) cachedFlags = data.flags;
   return transformScheduleData(data);
+}
+
+export function onScheduleUpdate(cb: (matches: Match[]) => void): () => void {
+  return onCacheUpdate<RawScheduleData>("paganello-schedule", (data) => {
+    if (data.flags) cachedFlags = data.flags;
+    cb(transformScheduleData(data));
+  });
 }
 
 export function getFlags(): FlagMap {
@@ -77,8 +85,8 @@ export function getUniqueTimes(matches: Match[]): string[] {
 export function getUniqueTeams(matches: Match[]): string[] {
   const teams = new Set<string>();
   matches.forEach((match) => {
-    if (match.team1) teams.add(match.team1);
-    if (match.team2) teams.add(match.team2);
+    if (match.team1 && !isPlaceholder(match.team1)) teams.add(match.team1);
+    if (match.team2 && !isPlaceholder(match.team2)) teams.add(match.team2);
   });
   return Array.from(teams).sort();
 }

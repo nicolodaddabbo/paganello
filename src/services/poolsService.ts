@@ -2,7 +2,7 @@ import type { RawPoolData, PoolStandings, DivisionKey } from "../types/pool";
 import { fetchWithCache } from "../utils/cache";
 
 const API_URL = "/api/pools";
-const CACHE_DURATION = 5 * 60 * 1000;
+const CACHE_DURATION = 60 * 1000; // 1 minute
 
 export async function fetchPools(): Promise<PoolStandings[]> {
   const data = await fetchWithCache<RawPoolData>(

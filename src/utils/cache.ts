@@ -19,6 +19,22 @@ async function fetchWithFallback(url: string, fallbackUrl?: string): Promise<Res
   throw new Error('All fetch attempts failed');
 }
 
+// Subscribers get notified when fresh data arrives
+const subscribers = new Map<string, Set<(data: unknown) => void>>();
+
+export function onCacheUpdate<T>(cacheKey: string, cb: (data: T) => void): () => void {
+  if (!subscribers.has(cacheKey)) subscribers.set(cacheKey, new Set());
+  const cbs = subscribers.get(cacheKey)!;
+  const wrapper = cb as (data: unknown) => void;
+  cbs.add(wrapper);
+  return () => cbs.delete(wrapper);
+}
+
+function notifySubscribers(cacheKey: string, data: unknown) {
+  const cbs = subscribers.get(cacheKey);
+  if (cbs) cbs.forEach(cb => cb(data));
+}
+
 export async function fetchWithCache<T>(
   url: string,
   cacheKey: string,
@@ -27,18 +43,24 @@ export async function fetchWithCache<T>(
 ): Promise<T> {
   const cached = getCachedData<T>(cacheKey);
 
-  if (cached) {
-    const stale = isCacheExpired(cached.timestamp, cacheDuration);
-    if (stale) {
-      // Stale cache — return immediately, refresh in background
-      fetchWithFallback(url, fallbackUrl)
-        .then(r => r.json())
-        .then(data => setCachedData(cacheKey, data))
-        .catch(() => {});
-    }
+  if (cached && !isCacheExpired(cached.timestamp, cacheDuration)) {
     return cached.data;
   }
 
+  // Stale cache exists — return it immediately, refresh in background
+  // Server guarantees fresh data, so brief staleness is OK to prevent flash
+  if (cached) {
+    fetchWithFallback(url, fallbackUrl)
+      .then(r => r.json())
+      .then((data: T) => {
+        setCachedData(cacheKey, data);
+        notifySubscribers(cacheKey, data);
+      })
+      .catch(() => {});
+    return cached.data;
+  }
+
+  // No cache at all — must wait for fresh data
   try {
     const res = await fetchWithFallback(url, fallbackUrl);
     const data: T = await res.json();

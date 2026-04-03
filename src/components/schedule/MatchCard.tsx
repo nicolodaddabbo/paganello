@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Match } from '../../types/match';
 import { getMatchStatus, formatTime } from '../../utils/time';
 import { DIVISION_COLORS, isPlaceholder, isKnockout } from '../../utils/match';
@@ -13,6 +13,7 @@ interface Props {
 }
 
 function MatchCard({ match, isFollowed, showTime = false }: Props) {
+  const navigate = useNavigate();
   const status = getMatchStatus(match);
   const t1Followed = isFollowed?.(match.team1) ?? false;
   const t2Followed = isFollowed?.(match.team2) ?? false;
@@ -67,7 +68,13 @@ function MatchCard({ match, isFollowed, showTime = false }: Props) {
 
       <div className={styles.infoCol}>
         <span className={`${styles.matchType} ${knockout ? styles.knockout : ''}`}>{match.matchType}</span>
-        <span className={styles.field}>{match.field}</span>
+        <span
+          role="link"
+          className={styles.fieldLink}
+          onClick={e => { e.preventDefault(); e.stopPropagation(); navigate(`/map?field=${encodeURIComponent(match.field)}&time=${encodeURIComponent(match.time)}`); }}
+        >
+          {match.field} →
+        </span>
       </div>
     </Link>
   );

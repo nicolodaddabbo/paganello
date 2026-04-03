@@ -214,6 +214,13 @@
   gap: 8px;
 }
 
+.fieldLink {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+}
+
 .mapLink {
   font-size: 0.75rem;
   font-weight: 600;

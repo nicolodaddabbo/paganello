@@ -7,7 +7,7 @@
   justify-content: space-around;
   align-items: center;
   background: var(--bg-card);
-  border-top: 2px solid var(--border);
+  border-top: 1px solid var(--border);
   padding: 4px 0 calc(4px + env(safe-area-inset-bottom, 0px));
   z-index: 100;
 }
@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  gap: 2px;
   padding: 6px 16px;
   min-width: var(--touch-min);
   min-height: 44px;
@@ -32,8 +32,11 @@
 }
 
 .icon {
-  font-size: 1.2rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .label {

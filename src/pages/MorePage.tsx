@@ -37,6 +37,10 @@ export default function MorePage() {
           <span>Spirit of the Game</span>
           <span className={styles.arrow}>→</span>
         </Link>
+        <Link to="/bracket" className={styles.link}>
+          <span>Bracket Path</span>
+          <span className={styles.arrow}>→</span>
+        </Link>
       </div>
 
       <div className={styles.section}>
@@ -150,14 +154,13 @@ export default function MorePage() {
         </a>
         <p className={styles.madeBy}>
           Made by{" "}
-          <a href="https://parsam.io" target="_blank" rel="noopener noreferrer">
+          <a href="https://parsam.io" target="_blank">
             Parsa
           </a>
           {" & "}
           <a
             href="https://nicolod.com"
             target="_blank"
-            rel="noopener noreferrer"
           >
             Nicolò
           </a>

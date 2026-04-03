@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { Match } from '../types/match';
 import { fetchSchedule, getFlag } from '../services/scheduleService';
@@ -7,17 +7,57 @@ import { useMyTeam } from '../hooks/useMyTeam';
 import DivisionBadge from '../components/common/DivisionBadge';
 import styles from './MatchPage.module.css';
 
+const CONFETTI = ['🎉', '🏆', '✨', '⭐', '🥏', '🎊'];
+
+function spawnConfetti() {
+  const container = document.createElement('div');
+  Object.assign(container.style, {
+    position: 'fixed', inset: '0', pointerEvents: 'none', zIndex: '9999', overflow: 'hidden',
+  });
+  document.body.appendChild(container);
+
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.textContent = CONFETTI[Math.floor(Math.random() * CONFETTI.length)];
+    Object.assign(el.style, {
+      position: 'absolute',
+      left: `${Math.random() * 100}vw`,
+      top: '-40px',
+      fontSize: `${1.2 + Math.random() * 1.5}rem`,
+      animation: `confetti-fall ${1.5 + Math.random() * 2}s ${Math.random() * 0.8}s ease-out forwards`,
+    });
+    container.appendChild(el);
+  }
+
+  setTimeout(() => container.remove(), 4500);
+}
+
 export default function MatchPage() {
   const { matchId } = useParams<{ matchId: string }>();
   const { myTeam, isFollowed, toggleFollow, setMyTeam } = useMyTeam();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
+  const confettiFired = useRef(false);
 
   useEffect(() => {
     fetchSchedule().then(setMatches).catch(() => { }).finally(() => setLoading(false));
   }, []);
 
   const match = useMemo(() => matches.find(m => m.id === matchId), [matches, matchId]);
+
+  const t1Wins = match ? match.hasScore && match.score1 > match.score2 : false;
+  const t2Wins = match ? match.hasScore && match.score2 > match.score1 : false;
+  const myTeamWon = match ? match.hasScore && (
+    (t1Wins && isFollowed(match.team1)) ||
+    (t2Wins && isFollowed(match.team2))
+  ) : false;
+
+  useEffect(() => {
+    if (myTeamWon && !confettiFired.current) {
+      confettiFired.current = true;
+      spawnConfetti();
+    }
+  }, [myTeamWon]);
 
   // Other matches in the same pool/bracket group
   const poolMatches = useMemo(() => {
@@ -64,8 +104,6 @@ export default function MatchPage() {
   }
 
   const status = getMatchStatus(match);
-  const t1Wins = match.hasScore && match.score1 > match.score2;
-  const t2Wins = match.hasScore && match.score2 > match.score1;
 
   return (
     <div className={styles.page}>
@@ -128,7 +166,7 @@ export default function MatchPage() {
           </div>
           <div className={styles.detailRow}>
             <span className={styles.detailLabel}>Where</span>
-            <span className={styles.detailValue}>{match.field}</span>
+            <Link to={`/map?field=${encodeURIComponent(match.field)}&time=${encodeURIComponent(match.time)}`} className={styles.fieldLink}>{match.field} →</Link>
           </div>
         </div>
       </div>

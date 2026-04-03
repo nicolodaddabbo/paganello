@@ -3,7 +3,7 @@
   align-items: center;
   padding: 10px 16px;
   padding-top: calc(10px + env(safe-area-inset-top, 0px));
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   position: sticky;
   top: 0;
   z-index: 90;

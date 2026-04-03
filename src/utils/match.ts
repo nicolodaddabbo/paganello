@@ -8,7 +8,10 @@ export const DIVISION_COLORS: Record<string, string> = {
 };
 
 export function isPlaceholder(name: string): boolean {
-  return /^[A-Z0-9]{1,4}$/.test(name.trim()) || /^[A-Z]{1,3}\d+$/.test(name.trim());
+  const n = name.trim();
+  // Must contain at least one digit — real teams like "BBF", "MINT" are all-letters
+  if (!/\d/.test(n)) return false;
+  return /^[A-Z0-9]{1,4}$/.test(n) || /^[A-Z]{1,3}\d+$/.test(n);
 }
 
 export function isKnockout(matchType: string): boolean {

@@ -163,9 +163,15 @@
   font-weight: 700;
 }
 
-.field {
-  font-size: 0.6rem;
-  color: var(--text-muted);
+.fieldLink {
+  font-size: 0.65rem;
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 4px 0;
+  display: inline-block;
+  min-height: 28px;
+  line-height: 20px;
 }
 
 

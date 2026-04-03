@@ -67,6 +67,19 @@
   color: var(--text-muted);
 }
 
+.mapBtn {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  padding: 6px 14px;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+
 /* Day tabs */
 .dayTabs {
   display: flex;
@@ -142,7 +155,7 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 /* Loading / empty */

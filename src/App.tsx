@@ -6,6 +6,8 @@ import PoolsPage from './pages/PoolsPage';
 import NowPage from './pages/NowPage';
 import MorePage from './pages/MorePage';
 import SOTGPage from './pages/SOTGPage';
+import MapPage from './pages/MapPage';
+import BracketPage from './pages/BracketPage';
 
 const base = import.meta.env.BASE_URL;
 const basename = base.length > 1 ? base.replace(/\/$/, '') : undefined;
@@ -22,6 +24,8 @@ export default function App() {
           <Route path="live" element={<NowPage />} />
           <Route path="more" element={<MorePage />} />
           <Route path="sotg" element={<SOTGPage />} />
+          <Route path="map" element={<MapPage />} />
+          <Route path="bracket" element={<BracketPage />} />
           <Route path="*" element={
             <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
               <h1 style={{ fontSize: '3rem', fontWeight: 900 }}>404</h1>

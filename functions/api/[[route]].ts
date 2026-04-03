@@ -11,8 +11,8 @@ const POOL_SHEETS = [
   "U15 Pools",
 ] as const;
 
-const MAX_AGE = 900; // 15 minutes — hard expiry
-const STALE_AFTER = 180; // 3 minutes — background refresh
+const MAX_AGE = 300; // 5 minutes — CDN hard expiry
+const STALE_AFTER = 60; // 1 minute — re-fetch from Google Sheets
 
 // --- CSV Parser ---
 
@@ -151,8 +151,10 @@ function buildSchedule(
 
         for (const [col, fieldName] of fieldNames) {
           const cell = (data[0][col] || "").trim();
-          // Extract matchType: everything after the field name
-          const matchType = cell.replace(fieldName, "").trim();
+          // Extract matchType: first "XX POOL/PQ/Q/S/F/R... (...)" pattern after the field name
+          const afterField = cell.replace(fieldName, "").trim();
+          const mtMatch = afterField.match(/^((?:RM|LM|O|W|U15|U20)\s+\S+\s+\S+(?:\s+\([^)]+\))?)/i);
+          const matchType = mtMatch ? mtMatch[1] : "";
           const team1 = (data[1]?.[col] || "").trim();
           const team2 = (data[2]?.[col] || "").trim();
           const score1 = parseInt(data[1]?.[col + 1]) || 0;
@@ -248,6 +250,27 @@ function buildPools(sheets: Map<string, string[][]>): Record<string, Pool[]> {
 
       if (col1Upper.startsWith("POOL ")) {
         poolName = col1;
+      } else if (col1Upper === "TEAM") {
+        // Bare "TEAM" row without pool name — infer from previous pool's standings
+        // e.g. if last pool had standings "1A","2A","3A", this is Pool B
+        if (pools.length > 0) {
+          const lastPool = pools[pools.length - 1];
+          const lastStandings = lastPool.standings[0];
+          if (lastStandings) {
+            // Get the suffix from the last standing value (e.g. "1A" → "A", "4UC" → "UC")
+            const lastVal = Object.values(lastStandings).pop() || "";
+            const letterMatch = lastVal.match(/\d+([A-Z]+)$/i);
+            if (letterMatch) {
+              const suffix = letterMatch[1];
+              // Increment the last character
+              const lastChar = suffix.charAt(suffix.length - 1);
+              const nextChar = String.fromCharCode(lastChar.charCodeAt(0) + 1);
+              const nextSuffix = suffix.slice(0, -1) + nextChar;
+              poolName = `POOL ${nextSuffix}`;
+            }
+          }
+        }
+        if (!poolName) poolName = `POOL ?`;
       } else {
         const poolMatch = col1.match(/\b(POOL\s+[A-Z]{1,2})\b/i);
         if (poolMatch) {
@@ -415,7 +438,8 @@ function buildResponse(data: string): Response {
   return new Response(data, {
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": `public, max-age=${MAX_AGE}, s-maxage=${MAX_AGE}`,
+      "Cache-Control": `public, s-maxage=${MAX_AGE}`,
+      "CDN-Cache-Control": `max-age=${MAX_AGE}`,
       "X-Cached-At": String(Date.now()),
     },
   });
@@ -474,21 +498,15 @@ export const onRequest: PagesFunction = async (context) => {
   }
 
   const cache = caches.default;
-  const cacheKey = new Request(url.toString() + "?v=2");
+  const cacheKey = new Request(url.toString() + "?v=5");
   const cached = await cache.match(cacheKey);
 
   if (cached) {
     const cachedAt = Number(cached.headers.get("X-Cached-At") || 0);
-    if (Date.now() - cachedAt > STALE_AFTER * 1000) {
-      context.waitUntil(
-        fetcher()
-          .then(async (data) => {
-            await cache.put(cacheKey, buildResponse(data));
-          })
-          .catch(() => {}),
-      );
+    if (Date.now() - cachedAt < STALE_AFTER * 1000) {
+      return cached;
     }
-    return cached;
+    // Data is stale — fetch fresh before responding so users never see old data
   }
 
   try {
@@ -497,6 +515,7 @@ export const onRequest: PagesFunction = async (context) => {
     await cache.put(cacheKey, result.clone());
     return result;
   } catch {
+    if (cached) return cached; // Google Sheets down — serve stale rather than error
     return new Response("Upstream error", { status: 502 });
   }
 };

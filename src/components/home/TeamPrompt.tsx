@@ -21,13 +21,9 @@ export default function TeamPrompt({ teams, onSelectTeam, onDismiss, expanded, o
   if (!expanded) {
     return (
       <div className={styles.banner}>
-        <div className={styles.bannerContent}>
-          <span className={styles.bannerText}>Follow a team for countdown & personalized schedule</span>
-          <div className={styles.bannerActions}>
-            <button className={styles.selectBtn} onClick={onExpand}>Pick team</button>
-            <button className={styles.dismissBtn} onClick={onDismiss}>×</button>
-          </div>
-        </div>
+        <p className={styles.question}>Are you playing at Paganello?</p>
+        <button className={styles.playerBtn} onClick={onExpand}>Find my team</button>
+        <button className={styles.spectatorBtn} onClick={onDismiss}>Just watching</button>
       </div>
     );
   }
@@ -36,7 +32,7 @@ export default function TeamPrompt({ teams, onSelectTeam, onDismiss, expanded, o
     <div className={styles.picker}>
       <div className={styles.pickerHeader}>
         <span className={styles.pickerTitle}>Pick your team</span>
-        <button className={styles.dismissBtn} onClick={onDismiss}>×</button>
+        <button className={styles.dismissBtn} onClick={onDismiss}>&times;</button>
       </div>
       <input
         type="text"
